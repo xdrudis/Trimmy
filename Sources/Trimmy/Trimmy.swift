@@ -288,7 +288,7 @@ struct TrimmyApp: App {
     }
 
     var body: some Scene {
-        MenuBarExtra("✂️ Trimmy") {
+        MenuBarExtra("Trimmy", systemImage: "scissors") {
             MenuContentView(monitor: monitor, settings: settings)
             Divider()
             Button("Quit") { NSApplication.shared.terminate(nil) }
