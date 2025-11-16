@@ -2,6 +2,9 @@
 
 # Changelog
 
+## 0.1.2 — 2025-11-16
+- Fix About panel credits: use attributed credits with version and icon so the About menu reliably appears.
+
 ## 0.1.1 — 2025-11-16
 - Clipboard flattening now repairs accidental newlines inside tokens (e.g., `N\nODE_PATH` → `NODE_PATH`) to avoid inserting stray spaces when copying shell commands.
 - Added safety valve: copies longer than 10 lines are skipped from auto-flattening, even on High aggressiveness.
