@@ -257,28 +257,26 @@ struct MenuContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Toggle("Auto-Trim", isOn: self.$settings.autoTrimEnabled)
-            Menu {
-                ForEach(Aggressiveness.allCases) { level in
-                    Button {
-                        self.settings.aggressiveness = level
-                    } label: {
-                        if self.settings.aggressiveness == level {
-                            Label(level.title, systemImage: "checkmark")
-                        } else {
-                            Text(level.title)
-                        }
-                    }
-                }
-            } label: {
-                Text("Aggressiveness: \(self.settings.aggressiveness.titleShort)")
-            }
-            Toggle("Keep blank lines", isOn: self.$settings.preserveBlankLines)
-            Toggle("Launch at login", isOn: self.$settings.launchAtLogin)
             Button("Trim Clipboard Now") {
                 self.monitor.trimClipboardIfNeeded(force: true)
             }
             Divider()
             Menu("Settings") {
+                Menu("Aggressiveness: \(self.settings.aggressiveness.titleShort)") {
+                    ForEach(Aggressiveness.allCases) { level in
+                        Button {
+                            self.settings.aggressiveness = level
+                        } label: {
+                            if self.settings.aggressiveness == level {
+                                Label(level.title, systemImage: "checkmark")
+                            } else {
+                                Text(level.title)
+                            }
+                        }
+                    }
+                }
+                Toggle("Keep blank lines", isOn: self.$settings.preserveBlankLines)
+                Toggle("Launch at login", isOn: self.$settings.launchAtLogin)
                 Toggle("Automatically check for updates", isOn: self.autoUpdateBinding)
                 Button("Check for Updates…") {
                     self.updater.checkForUpdates(nil)
