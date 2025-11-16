@@ -9,7 +9,7 @@
             <sparkle:version>5</sparkle:version>
             <sparkle:shortVersionString>0.2.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://raw.githubusercontent.com/steipete/Trimmy/main/Trimmy-0.2.1.zip" length="2173406" type="application/octet-stream" sparkle:edSignature="VtckNN7/MB2lcZAa5FZJXnWOS2EqI4n3sN0jS5pHBTwK4666kzchyRMVGzJVFH160g+J+Cws+drtsR1TqU/TAA=="/>
+            <enclosure url="https://github.com/steipete/Trimmy/releases/download/v0.2.1/Trimmy-0.2.1.zip" length="2173406" type="application/octet-stream" sparkle:edSignature="VtckNN7/MB2lcZAa5FZJXnWOS2EqI4n3sN0jS5pHBTwK4666kzchyRMVGzJVFH160g+J+Cws+drtsR1TqU/TAA=="/>
         </item>
     </channel>
 </rss>
