@@ -2,6 +2,11 @@
 
 # Changelog
 
+## 0.1.3 — 2025-11-16
+- Launch-at-login toggle (SMAppService) with persisted setting.
+- Swift Testing migration; lint/format configs added; strict concurrency opt-in.
+- Removed legacy XCTest suite; kept core detector tests.
+
 ## 0.1.2 — 2025-11-16
 - Fix About panel credits: use attributed credits with version and icon so the About menu reliably appears.
 
