@@ -9,6 +9,13 @@ APP="$ROOT/Trimmy.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
+# Convert .icon (macOS 15 IconStudio format) to .icns if present
+ICON_SOURCE="$ROOT/Icon.icon"
+ICON_TARGET="$ROOT/Icon.icns"
+if [[ -f "$ICON_SOURCE" ]]; then
+  iconutil --convert icns --output "$ICON_TARGET" "$ICON_SOURCE"
+fi
+
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -32,8 +39,8 @@ PLIST
 cp ".build/$CONF/Trimmy" "$APP/Contents/MacOS/Trimmy"
 chmod +x "$APP/Contents/MacOS/Trimmy"
 # Icon
-if [[ -f "$ROOT/Icon.icns" ]]; then
-  cp "$ROOT/Icon.icns" "$APP/Contents/Resources/Icon.icns"
+if [[ -f "$ICON_TARGET" ]]; then
+  cp "$ICON_TARGET" "$APP/Contents/Resources/Icon.icns"
 fi
 
 echo "Created $APP"
