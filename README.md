@@ -1,7 +1,5 @@
 # Trimmy ✂️
 ![Trimmy logo](trimmy-logo.png)
-![Trimmy UI](trimmy-ui.png)
-
 > "Paste once, run once." — Trimmy flattens those multi-line shell snippets you copy so they actually paste and run.
 
 ## What it does
@@ -20,6 +18,8 @@
 1. Build: `swift build -c release` (Swift 6, macOS 15+).
 2. Bundle: `./Scripts/package_app.sh release` → `Trimmy.app`.
 3. Launch: open `Trimmy.app` (or add to Login Items). Menu shows Auto-Trim toggle, Aggressiveness submenu, Keep blank lines toggle, Trim Now, and last-trim status.
+
+![Trimmy UI](trimmy-ui.png)
 
 ## Lint / Format
 - Format: `swiftformat .` (config `.swiftformat` from Peekaboo defaults).
