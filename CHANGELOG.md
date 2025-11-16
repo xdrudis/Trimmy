@@ -6,6 +6,7 @@
 
 ## 0.2.2 — 2025-11-16
 - About panel now lists GitHub · Website · Twitter · Email links inline (matches CodexBar).
+- Expanded detector test coverage across aggressiveness levels and edge cases (blank lines, backslashes, prose).
 
 ## 0.2.0 — 2025-11-16
 - Sparkle auto-updates (Check for Updates…, auto-check toggle) with GitHub feed and signed appcast.
