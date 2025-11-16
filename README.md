@@ -19,6 +19,10 @@
 2. Bundle: `./Scripts/package_app.sh release` → `Trimmy.app`.
 3. Launch: open `Trimmy.app` (or add to Login Items). Menu shows Auto-Trim toggle, Aggressiveness submenu, Keep blank lines toggle, Trim Now, and last-trim status.
 
+## Lint / Format
+- Format: `swiftformat .` (config `.swiftformat` from Peekaboo defaults).
+- Lint: `swiftlint lint --fix` or `swiftlint lint` (config `.swiftlint.yml` from Peekaboo defaults).
+
 ## Notes
 - Bundle ID: `com.steipete.trimmy` (LSUIElement menu-bar app).
 - Polling: ~150ms with leeway; grace delay ~80ms to let promised data arrive.
