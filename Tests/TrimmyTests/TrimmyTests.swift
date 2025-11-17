@@ -107,6 +107,19 @@ struct TrimmyTests {
         #expect(detector.transformIfCommand(text) == "npm install")
     }
 
+    @Test(arguments: Aggressiveness.allCases)
+    func aggressivenessThresholds(_ level: Aggressiveness) {
+        let settings = AppSettings()
+        settings.aggressiveness = level
+        let detector = CommandDetector(settings: settings)
+        let text = """
+        echo hi \\
+        --flag yes
+        """
+        let result = detector.transformIfCommand(text)
+        #expect(result == "echo hi --flag yes")
+    }
+
     @Test
     func normalAggressivenessKeepsNonCommands() {
         let settings = AppSettings()
