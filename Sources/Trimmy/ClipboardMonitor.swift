@@ -64,6 +64,7 @@ final class ClipboardMonitor: ObservableObject {
         guard current != self.lastSeenChangeCount else { return }
 
         let observed = current
+        // Grace delay lets promised pasteboard data settle before we read/transform.
         DispatchQueue.main.asyncAfter(deadline: .now() + self.graceDelay) { [weak self] in
             guard let self, observed == self.pasteboard.changeCount else { return }
             _ = self.trimClipboardIfNeeded()

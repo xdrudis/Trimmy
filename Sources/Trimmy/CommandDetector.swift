@@ -34,6 +34,7 @@ struct CommandDetector {
     }
 
     private func flatten(_ text: String) -> String {
+        // Preserve intentional blank lines by temporarily swapping them out, then restoring.
         let placeholder = "__BLANK_SEP__"
         var result = text
         if self.settings.preserveBlankLines {

@@ -19,5 +19,4 @@ struct SettingsView: View {
     }
 }
 
-private extension Aggressiveness {
-}
+extension Aggressiveness {}
