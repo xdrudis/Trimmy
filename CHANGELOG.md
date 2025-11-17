@@ -8,6 +8,10 @@
 - About panel now lists GitHub · Website · Twitter · Email links inline (matches CodexBar).
 - Expanded detector test coverage across aggressiveness levels and edge cases (blank lines, backslashes, prose).
 
+## 0.2.3 — 2025-11-17
+- Refactor into modular files (settings, detector, monitor, UI/app) and enable SwiftLint on Sources/Tests.
+- Patch version bump to 0.2.3 (7).
+
 ## 0.2.0 — 2025-11-16
 - Sparkle auto-updates (Check for Updates…, auto-check toggle) with GitHub feed and signed appcast.
 - Launch-at-login toggle (SMAppService) persisted and applied at startup.
