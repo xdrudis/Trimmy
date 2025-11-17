@@ -25,7 +25,7 @@ Get the precompiled binary from [Releases](https://github.com/steipete/Trimmy/re
 2. Bundle: `./Scripts/package_app.sh release` → `Trimmy.app`.
 3. Launch: open `Trimmy.app` (or add to Login Items). Menu shows Auto-Trim toggle, Aggressiveness submenu, Keep blank lines toggle, Trim Now, and last-trim status.
 
-![Trimmy UI](trimmy-ui.png)
+![Trimmy UI](trimmy-screenshot.png)
 
 ## Lint / Format
 - Format: `swiftformat`.
