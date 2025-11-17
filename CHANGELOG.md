@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.4 — 2025-11-17
 - Last trim preview now middle-truncates long text so the menu stays compact while showing both start and end of the command.
+- Packaging/signing hardened: strip extended attributes, remove AppleDouble (`._*`) files, and re-sign Sparkle + app bundle to satisfy Gatekeeper and notarization.
 
 ## 0.2.3 — 2025-11-17
 - Optional stripping of box-drawing separators (│ │) with whitespace collapse so prompt-style borders paste cleanly.

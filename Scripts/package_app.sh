@@ -26,8 +26,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundleIdentifier</key><string>com.steipete.trimmy</string>
     <key>CFBundleExecutable</key><string>Trimmy</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.2.3</string>
-    <key>CFBundleVersion</key><string>7</string>
+    <key>CFBundleShortVersionString</key><string>0.2.4</string>
+    <key>CFBundleVersion</key><string>8</string>
     <key>LSMinimumSystemVersion</key><string>15.0</string>
     <key>LSUIElement</key><true/>
     <key>CFBundleIconFile</key><string>Icon</string>
@@ -58,10 +58,20 @@ if [[ -d ".build/$CONF/Sparkle.framework" ]]; then
   resign "$SPARKLE/Versions/B/XPCServices/Downloader.xpc/Contents/MacOS/Downloader"
   resign "$SPARKLE/Versions/B/XPCServices/Installer.xpc"
   resign "$SPARKLE/Versions/B/XPCServices/Installer.xpc/Contents/MacOS/Installer"
+  resign "$SPARKLE/Versions/B"
+  resign "$SPARKLE"
 fi
 # Icon
 if [[ -f "$ICON_TARGET" ]]; then
   cp "$ICON_TARGET" "$APP/Contents/Resources/Icon.icns"
 fi
+
+# Strip extended attributes to avoid AppleDouble (._*) files that break code sealing
+xattr -cr "$APP"
+find "$APP" -name '._*' -delete
+
+# Sign the app bundle after cleanup
+CODESIGN_ID="${APP_IDENTITY:-Developer ID Application: Peter Steinberger (Y5PE65HELJ)}"
+codesign --force --timestamp --options runtime --sign "$CODESIGN_ID" "$APP"
 
 echo "Created $APP"

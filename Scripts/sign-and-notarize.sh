@@ -4,7 +4,7 @@ set -euo pipefail
 APP_NAME="Trimmy"
 APP_IDENTITY="Developer ID Application: Peter Steinberger (Y5PE65HELJ)"
 APP_BUNDLE="Trimmy.app"
-ZIP_NAME="Trimmy-0.2.3.zip"
+ZIP_NAME="Trimmy-0.2.4.zip"
 
 if [[ -z "${APP_STORE_CONNECT_API_KEY_P8:-}" || -z "${APP_STORE_CONNECT_KEY_ID:-}" || -z "${APP_STORE_CONNECT_ISSUER_ID:-}" ]]; then
   echo "Missing APP_STORE_CONNECT_* env vars (API key, key id, issuer id)." >&2
@@ -23,7 +23,7 @@ codesign --force --deep --options runtime --timestamp --sign "$APP_IDENTITY" "$A
 
 # Zip for notarization (prefer system ditto)
 DITTO_BIN=${DITTO_BIN:-/usr/bin/ditto}
-"$DITTO_BIN" -c -k --keepParent "$APP_BUNDLE" /tmp/TrimmyNotarize.zip
+"$DITTO_BIN" -c -k --keepParent --sequesterRsrc "$APP_BUNDLE" /tmp/TrimmyNotarize.zip
 
 echo "Submitting for notarization"
 xcrun notarytool submit /tmp/TrimmyNotarize.zip \
@@ -36,7 +36,7 @@ echo "Stapling ticket"
 xcrun stapler staple "$APP_BUNDLE"
 
 # Final zip for distribution
-"$DITTO_BIN" -c -k --keepParent "$APP_BUNDLE" "$ZIP_NAME"
+"$DITTO_BIN" -c -k --keepParent --sequesterRsrc "$APP_BUNDLE" "$ZIP_NAME"
 
 # Verify
 spctl -a -t exec -vv "$APP_BUNDLE"
