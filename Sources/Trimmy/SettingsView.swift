@@ -346,7 +346,13 @@ private struct AggressivenessPreview: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 PreviewCard(title: "Before", text: self.example.sample)
-                PreviewCard(title: "After", text: self.previewAfter())
+                PreviewCard(
+                    title: "After",
+                    text: AggressivenessPreviewEngine.previewAfter(
+                        for: self.example.sample,
+                        level: self.level,
+                        preserveBlankLines: self.preserveBlankLines,
+                        removeBoxDrawing: self.removeBoxDrawing))
             }
 
             if let note = self.example.note {
@@ -358,17 +364,25 @@ private struct AggressivenessPreview: View {
         }
     }
 
-    private func previewAfter() -> String {
-        var text = self.example.sample
-        if self.removeBoxDrawing {
+}
+
+enum AggressivenessPreviewEngine {
+    static func previewAfter(
+        for sample: String,
+        level: Aggressiveness,
+        preserveBlankLines: Bool,
+        removeBoxDrawing: Bool) -> String
+    {
+        var text = sample
+        if removeBoxDrawing {
             text = text.replacingOccurrences(of: "│ │", with: " ")
         }
-        let score = Self.score(for: text)
-        guard score >= self.level.scoreThreshold else { return text }
-        return Self.flatten(text, preserveBlankLines: self.preserveBlankLines)
+        let score = self.score(for: text)
+        guard score >= level.scoreThreshold else { return text }
+        return self.flatten(text, preserveBlankLines: preserveBlankLines)
     }
 
-    private static func score(for text: String) -> Int {
+    static func score(for text: String) -> Int {
         guard text.contains("\n") else { return 0 }
         let lines = text.split(whereSeparator: { $0.isNewline })
         if lines.count < 2 || lines.count > 10 { return 0 }
@@ -382,7 +396,7 @@ private struct AggressivenessPreview: View {
         return score
     }
 
-    private static func flatten(_ text: String, preserveBlankLines: Bool) -> String {
+    static func flatten(_ text: String, preserveBlankLines: Bool) -> String {
         let placeholder = "__BLANK_SEP__"
         var result = text
         if preserveBlankLines {
@@ -402,7 +416,7 @@ private struct AggressivenessPreview: View {
     }
 }
 
-private struct AggressivenessExample {
+struct AggressivenessExample {
     let title: String
     let caption: String
     let sample: String
@@ -413,12 +427,13 @@ private struct AggressivenessExample {
         case .low:
             AggressivenessExample(
                 title: "Low only flattens obvious shell commands",
-                caption: "Quick continuations with pipes still count as \"real\" commands.",
+                caption: "Continuations plus pipes are obvious enough to collapse.",
                 sample: """
 ls -la \\
-  | sort
+  | grep '^d' \\
+  > dirs.txt
 """,
-                note: "Because of the continuation and pipe, even Low collapses this into one line.")
+                note: "Because of the continuation, pipe, and redirect, even Low collapses this into one line.")
         case .normal:
             AggressivenessExample(
                 title: "Normal flattens typical blog commands",
