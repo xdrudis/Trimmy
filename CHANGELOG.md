@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — Unreleased
 - New global hotkey (default ⌃⌥⌘V) that types the trimmed clipboard contents into any app, gated by a Settings toggle and customizable shortcut.
 - Sparkle updater now auto-disables for unsigned/dev runs (mirrors CodexBar) to avoid updater error dialogs during development.
 - Debug builds now use bundle ID `com.steipete.trimmy.debug` and ship with Sparkle feed disabled, so Accessibility/Input Monitoring and updater prompts stay isolated from release builds.
+- Large-paste confirmation shows a selectable preview (up to 1000 lines, 50k chars) and confirms >20 lines before typing.
 
 ## 0.2.4 — 2025-11-17
 - Last trim preview now middle-truncates long text so the menu stays compact while showing both start and end of the command.
