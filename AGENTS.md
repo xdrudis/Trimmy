@@ -91,7 +91,9 @@ Edit guidance: keep the actual tool list inside this `<tools></tools>` block so 
 - `bin/browser-tools`: Compiled Chrome helper for remote control/screenshot/eval—use the binary (`bin/browser-tools --help`). Source lives in `scripts/browser-tools.ts`; edit there before rebuilding.
 - `scripts/runner.ts`: Bun implementation backing `runner`; run `bun scripts/runner.ts --help`.
 - `bin/sleep`: Sleep shim that enforces the 30s ceiling; run `bin/sleep --help`.
-- `xcp`: Xcode project/workspace helper; run `xcp --help`.
+- `xcp`: Xcode project/workspace helper (list/set targets, add/move/delete/rename groups & files, get/set build settings, manage image/data/color assets); run `xcp --help`.
+- `xcodegen`: Generate Xcode projects from YAML specs; run `xcodegen --help`.
+- `lldb`: To debug native apps, run `lldb` inside tmux and attach to the running app to inspect state interactively.
 - `oracle`: Ask a smart AI to review code and find bugs; you must call `npx -y @steipete/oracle --help` first.
 - `mcporter`: MCP launcher for any registered MCP server; run `npx mcporter`.
 - `iterm`: Full TTY terminal via MCP; run `npx mcporter iterm`.
@@ -106,4 +108,5 @@ Edit guidance: keep the actual tool list inside this `<tools></tools>` block so 
   pkill -f "Trimmy.app/Contents/MacOS/Trimmy" || true && \
   swift build -q && swift test -q && Scripts/package_app.sh debug && open Trimmy.app
   ```
+- If you edited code, run `Scripts/compile_and_run.sh` before handoff; it kills old instances, builds, tests, packages, relaunches, and verifies the app stays running.
 - Past behavior: Settings tabs used to animate their height per tab (spring animation, `contentHeight` state, `SettingsTab.preferredHeight`). If we ever need that back, restore the old `contentHeight` state + `.frame(height:)` logic from git history (commit before 2025-11-19 ~18:40) while re-enabling the `preferredHeight` cases.
