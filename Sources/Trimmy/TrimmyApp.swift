@@ -8,6 +8,7 @@ struct TrimmyApp: App {
     @StateObject private var settings = AppSettings()
     @StateObject private var monitor: ClipboardMonitor
     @StateObject private var hotkeyManager: HotkeyManager
+    private let startupDiagnostics = StartupDiagnostics()
 
     init() {
         let settings = AppSettings()
@@ -31,12 +32,28 @@ struct TrimmyApp: App {
         }
         Settings {
             SettingsView(settings: self.settings, hotkeyManager: self.hotkeyManager)
+                .onAppear {
+                    self.startupDiagnostics.logAccessibilityStatus()
+                }
         }
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let updaterController: UpdaterProviding = makeUpdaterController()
+}
+
+// MARK: - Startup diagnostics
+
+struct StartupDiagnostics {
+    func logAccessibilityStatus() {
+        let trusted = AXIsProcessTrusted()
+        let bundle = Bundle.main.bundleIdentifier ?? "nil"
+        let exec = Bundle.main.executableURL?.path ?? "nil"
+        Telemetry.accessibility
+            .info(
+                "Startup AX trusted=\(trusted, privacy: .public) bundle=\(bundle, privacy: .public) exec=\(exec, privacy: .public)")
+    }
 }
 
 // MARK: - Sparkle gating (disable for unsigned/dev builds)

@@ -1,6 +1,7 @@
 import AppKit
 @preconcurrency import ApplicationServices
 import Carbon
+import OSLog
 
 /// Sends synthetic key events for a given ASCII-ish string, using a US-QWERTY key map.
 @MainActor
@@ -9,10 +10,21 @@ struct KeySender {
 
     /// Request Accessibility/Input Monitoring if needed. Returns true when trusted.
     static func ensureAccessibility() -> Bool {
-        if AXIsProcessTrusted() { return true }
+        let alreadyTrusted = AXIsProcessTrusted()
+        if alreadyTrusted {
+            Telemetry.accessibility
+                .info(
+                    "AX trusted=true bundle=\(Bundle.main.bundleIdentifier ?? "nil", privacy: .public) exec=\(Bundle.main.executableURL?.path ?? "nil", privacy: .public)")
+            return true
+        }
+
         let key = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
         let options: CFDictionary = [key: true] as CFDictionary
-        return AXIsProcessTrustedWithOptions(options)
+        let promptedTrusted = AXIsProcessTrustedWithOptions(options)
+        Telemetry.accessibility
+            .info(
+                "AX prompt requested trusted=\(promptedTrusted, privacy: .public) bundle=\(Bundle.main.bundleIdentifier ?? "nil", privacy: .public) exec=\(Bundle.main.executableURL?.path ?? "nil", privacy: .public)")
+        return promptedTrusted
     }
 
     /// Types the provided text into the focused app. Skips characters we cannot map.

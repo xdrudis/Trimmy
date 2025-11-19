@@ -57,11 +57,15 @@ final class HotkeyManager: ObservableObject {
     @discardableResult
     private func handleHotkey() -> Bool {
         guard let trimmed = self.monitor.trimmedClipboardText(force: true) else {
+            Telemetry.hotkey.notice("No trimmable clipboard text (force=true). Clipboard likely single-line or empty.")
             NSSound.beep()
             return false
         }
 
         guard KeySender.ensureAccessibility() else {
+            Telemetry.accessibility
+                .error(
+                    "Accessibility not trusted; prompt should have been shown. bundle=\(Bundle.main.bundleIdentifier ?? "nil", privacy: .public) exec=\(Bundle.main.executableURL?.path ?? "nil", privacy: .public)")
             NSSound.beep()
             return false
         }
