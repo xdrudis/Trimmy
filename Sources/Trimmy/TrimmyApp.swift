@@ -31,16 +31,27 @@ struct TrimmyApp: App {
             Button("Quit") { NSApplication.shared.terminate(nil) }
         }
         Settings {
-            SettingsView(settings: self.settings, hotkeyManager: self.hotkeyManager)
+            SettingsView(
+                settings: self.settings,
+                hotkeyManager: self.hotkeyManager,
+                updater: self.appDelegate.updaterController)
                 .onAppear {
                     self.startupDiagnostics.logAccessibilityStatus()
                 }
+                .scenePadding()
         }
+        .defaultSize(width: 480, height: 340)
+        .windowResizability(.contentSize)
+        .windowStyle(.titleBar)
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let updaterController: UpdaterProviding = makeUpdaterController()
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
+    }
 }
 
 // MARK: - Startup diagnostics

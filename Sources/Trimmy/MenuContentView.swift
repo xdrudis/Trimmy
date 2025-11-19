@@ -9,64 +9,61 @@ struct MenuContentView: View {
     @ObservedObject var hotkeyManager: HotkeyManager
     let updater: UpdaterProviding
 
+    @Environment(\.openSettings) private var openSettings
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Toggle("Auto-Trim", isOn: self.$settings.autoTrimEnabled)
-            Button("Trim Clipboard Now") {
-                self.monitor.trimClipboardIfNeeded(force: true)
+            Button("Trim Clipboard") {
+                self.handleTrimClipboard()
             }
-            Button("Type Clipboard Text Now") {
-                _ = self.hotkeyManager.typeTrimmedTextNow()
+            Button("Type Clipboard Text") {
+                self.handleTypeClipboard()
             }
             .disabled(!self.hotkeyManager.hasClipboardText)
-            Text(self.lastText)
-                .foregroundStyle(.secondary)
-                .font(.caption)
-            Divider()
-            Menu("Settings") {
-                Menu("Aggressiveness: \(self.settings.aggressiveness.titleShort)") {
-                    ForEach(Aggressiveness.allCases) { level in
-                        Button {
-                            self.settings.aggressiveness = level
-                        } label: {
-                            if self.settings.aggressiveness == level {
-                                Label(level.title, systemImage: "checkmark")
-                            } else {
-                                Text(level.title)
-                            }
-                        }
-                    }
-                }
-                Toggle("Keep blank lines", isOn: self.$settings.preserveBlankLines)
-                Toggle("Remove box drawing chars (│ │)", isOn: self.$settings.removeBoxDrawing)
-                Toggle("Enable global “Type Trimmed” hotkey", isOn: self.$settings.hotkeyEnabled)
-                Toggle("Launch at login", isOn: self.$settings.launchAtLogin)
-                Button("Trim Clipboard") {
-                    self.monitor.trimClipboardIfNeeded(force: true)
-                }
-                if self.updater.isAvailable {
-                    Toggle("Automatically check for updates", isOn: self.autoUpdateBinding)
-                    Button("Check for Updates…") {
-                        self.updater.checkForUpdates(nil)
-                    }
-                }
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Last:")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                MenuWrappingText(
+                    text: self.lastSummary,
+                    width: 260,
+                    maxLines: 5)
             }
+            Divider()
+            Button("Settings…") {
+                self.open(tab: .general)
+            }
+            .keyboardShortcut(",", modifiers: [.command])
             Button("About Trimmy") {
-                self.showAbout()
+                self.open(tab: .about)
             }
         }
         .padding(.vertical, 6)
         .padding(.horizontal, 10)
     }
 
-    private var lastText: String {
-        self.monitor.lastSummary.isEmpty ? "No trims yet" : "Last: \(self.monitor.lastSummary)"
+    private var lastSummary: String {
+        self.monitor.lastSummary.isEmpty ? "No trims yet" : self.monitor.lastSummary
     }
 
-    private var autoUpdateBinding: Binding<Bool> {
-        Binding(
-            get: { self.updater.automaticallyChecksForUpdates },
-            set: { self.updater.automaticallyChecksForUpdates = $0 })
+    private func handleTrimClipboard() {
+        NSApp.activate(ignoringOtherApps: true)
+        let didTrim = self.monitor.trimClipboardIfNeeded(force: true)
+        if !didTrim {
+            self.monitor.lastSummary = "Clipboard not trimmed (nothing command-like detected)."
+        }
+    }
+
+    private func handleTypeClipboard() {
+        NSApp.activate(ignoringOtherApps: true)
+        _ = self.hotkeyManager.typeTrimmedTextNow()
+    }
+
+    private func open(tab: SettingsTab) {
+        SettingsTabRouter.request(tab)
+        NSApp.activate(ignoringOtherApps: true)
+        self.openSettings()
+        NotificationCenter.default.post(name: .trimmySelectSettingsTab, object: tab)
     }
 
     private func showAbout() {
@@ -107,5 +104,51 @@ struct MenuContentView: View {
         NSAttributedString(string: " · ", attributes: [
             .font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize),
         ])
+    }
+}
+
+// MARK: - Multiline preview helper
+
+private struct MenuWrappingText: NSViewRepresentable {
+    var text: String
+    var width: CGFloat
+    var maxLines: Int
+    var font: NSFont = .systemFont(ofSize: NSFont.smallSystemFontSize)
+    var color: NSColor = .secondaryLabelColor
+
+    func makeNSView(context: Context) -> NSTextField {
+        let field = NSTextField(wrappingLabelWithString: text)
+        field.isSelectable = false
+        field.backgroundColor = .clear
+        field.textColor = color
+        field.font = font
+        field.lineBreakMode = .byWordWrapping
+        field.maximumNumberOfLines = maxLines
+        field.setFrameSize(self.size(for: text))
+        return field
+    }
+
+    func updateNSView(_ field: NSTextField, context: Context) {
+        field.stringValue = text
+        field.textColor = color
+        field.font = font
+        field.maximumNumberOfLines = maxLines
+        field.setFrameSize(self.size(for: text))
+    }
+
+    private func size(for string: String) -> NSSize {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineBreakMode = .byWordWrapping
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .paragraphStyle: paragraph,
+        ]
+        let rect = (string as NSString).boundingRect(
+            with: NSSize(width: width, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: attributes)
+        let lineHeight = ceil(font.ascender - font.descender + font.leading)
+        let maxHeight = lineHeight * CGFloat(max(1, maxLines))
+        return NSSize(width: width, height: min(ceil(rect.height), maxHeight))
     }
 }

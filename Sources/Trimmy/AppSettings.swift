@@ -30,6 +30,18 @@ extension Aggressiveness {
         case .high: "High"
         }
     }
+
+    /// Short helper text shown under the radio group.
+    var blurb: String {
+        switch self {
+        case .low:
+            "Keeps light multi-line snippets intact unless they clearly look like shell commands."
+        case .normal:
+            "Good default: flattens typical blog/README commands with pipes or continuations."
+        case .high:
+            "Most eager: will flatten almost any short multi-line text that resembles a command."
+        }
+    }
 }
 
 @MainActor
