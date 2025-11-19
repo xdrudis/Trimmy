@@ -261,6 +261,16 @@ struct HotkeySettingsPane: View {
                     .font(.footnote)
                     .foregroundStyle(.tertiary)
             }
+
+            HStack {
+                Spacer()
+                Button("Quit Trimmy") {
+                    NSApp.terminate(nil)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+            }
+            .padding(.top, 8)
         }
         .onChange(of: self.settings.hotkeyEnabled) { _, _ in
             self.hotkeyManager.refreshRegistration()
