@@ -41,11 +41,21 @@ final class ClipboardMonitor: ObservableObject {
         let changeCount = self.pasteboard.changeCount
         self.lastSeenChangeCount = changeCount
 
-        guard let trimmed = self.trimmedClipboardText(force: force) else { return false }
-        self.writeTrimmed(trimmed)
-        self.lastSeenChangeCount = self.pasteboard.changeCount
-        self.updateSummary(with: trimmed)
-        return true
+        if let trimmed = self.trimmedClipboardText(force: force) {
+            self.writeTrimmed(trimmed)
+            self.lastSeenChangeCount = self.pasteboard.changeCount
+            self.updateSummary(with: trimmed)
+            return true
+        }
+
+        // For forced/manual trims, still surface the current clipboard text in “Last” even when
+        // nothing was transformed, so the menu reflects what the user tried to trim.
+        if force, let raw = self.readTextFromPasteboard(ignoreMarker: true) {
+            self.updateSummary(with: raw)
+            return true
+        }
+
+        return false
     }
 
     private func tick() {
