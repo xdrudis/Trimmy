@@ -100,7 +100,11 @@ final class ClipboardMonitor: ObservableObject {
             currentText = commandTransformed
             wasTransformed = true
         } else if force {
-            if !wasTransformed, !text.contains("\\\n"), !text.contains("\n") { return nil }
+            // For manual/forced trims, fall back to returning what we read so the menu state updates
+            // even when nothing was transformed (single-line or non-command text).
+            if !wasTransformed {
+                return currentText
+            }
         } else if !wasTransformed {
             return nil
         }

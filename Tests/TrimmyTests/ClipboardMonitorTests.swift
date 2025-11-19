@@ -28,4 +28,14 @@ struct ClipboardMonitorTests {
         let didTrimAgain = monitor.trimClipboardIfNeeded(force: true)
         #expect(didTrimAgain)
     }
+
+    @Test
+    func forceTrimReturnsRawWhenNotTransformed() {
+        let settings = AppSettings()
+        settings.autoTrimEnabled = false
+        let monitor = ClipboardMonitor(settings: settings)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString("single line", forType: .string)
+        #expect(monitor.trimmedClipboardText(force: true) == "single line")
+    }
 }
