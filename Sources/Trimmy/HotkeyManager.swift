@@ -96,7 +96,10 @@ final class HotkeyManager: ObservableObject {
         alert.addButton(withTitle: "Cancel")
 
         let previewText = Self.previewSnippet(for: preview)
-        let textView = NSTextView(frame: .zero)
+        let contentWidth: CGFloat = 360
+        let contentHeight: CGFloat = 120
+
+        let textView = NSTextView(frame: NSRect(x: 0, y: 0, width: contentWidth, height: contentHeight))
         textView.string = previewText
         textView.isEditable = false
         textView.isSelectable = true
@@ -106,15 +109,18 @@ final class HotkeyManager: ObservableObject {
         textView.font = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
         textView.textContainer?.lineFragmentPadding = 4
         textView.textContainerInset = NSSize(width: 4, height: 4)
-        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.textContainer?.widthTracksTextView = true
+        textView.textContainer?.containerSize = NSSize(width: contentWidth, height: .greatestFiniteMagnitude)
 
-        let scroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: 360, height: 120))
+        let scroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: contentWidth, height: contentHeight))
         scroll.documentView = textView
         scroll.hasVerticalScroller = true
         scroll.borderType = .bezelBorder
         scroll.translatesAutoresizingMaskIntoConstraints = false
-        scroll.heightAnchor.constraint(equalToConstant: 120).isActive = true
-        scroll.widthAnchor.constraint(equalToConstant: 360).isActive = true
+        scroll.heightAnchor.constraint(equalToConstant: contentHeight).isActive = true
+        scroll.widthAnchor.constraint(equalToConstant: contentWidth).isActive = true
 
         alert.accessoryView = scroll
 
