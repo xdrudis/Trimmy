@@ -19,7 +19,8 @@ fi
 BUNDLE_ID="com.steipete.trimmy"
 FEED_URL="https://raw.githubusercontent.com/steipete/Trimmy/main/appcast.xml"
 AUTO_CHECKS=true
-if [[ "${CONF,,}" == "debug" ]]; then
+LOWER_CONF=$(printf "%s" "$CONF" | tr '[:upper:]' '[:lower:]')
+if [[ "$LOWER_CONF" == "debug" ]]; then
   BUNDLE_ID="com.steipete.trimmy.debug"
   FEED_URL=""
   AUTO_CHECKS=false
