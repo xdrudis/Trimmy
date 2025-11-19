@@ -102,6 +102,7 @@ final class HotkeyManager: ObservableObject {
         textView.isSelectable = true
         textView.drawsBackground = true
         textView.backgroundColor = NSColor.textBackgroundColor
+        textView.textColor = NSColor.labelColor
         textView.font = NSFont.monospacedSystemFont(ofSize: 11, weight: .regular)
         textView.textContainer?.lineFragmentPadding = 4
         textView.textContainerInset = NSSize(width: 4, height: 4)
@@ -148,6 +149,9 @@ final class HotkeyManager: ObservableObject {
         var snippet = snippetLines.joined(separator: "\n")
         if snippet.count > 400 {
             snippet = String(snippet.prefix(400)) + "…"
+        }
+        if snippet.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "(preview is empty)"
         }
         return snippet
     }
