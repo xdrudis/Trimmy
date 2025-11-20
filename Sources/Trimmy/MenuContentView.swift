@@ -14,13 +14,12 @@ struct MenuContentView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            self.pasteButtons
+            Divider()
             Toggle(isOn: self.$settings.autoTrimEnabled) {
                 Text("Auto-Trim")
             }
             .toggleStyle(.checkbox)
-
-            self.pasteButtons
-            Divider()
             Button("Settings…") {
                 self.open(tab: .general)
             }
