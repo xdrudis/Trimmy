@@ -36,4 +36,18 @@ struct AggressivenessPreviewExamplesTests {
             removeBoxDrawing: true)
         #expect(flattened == "echo \"hello\" print status")
     }
+
+    @Test
+    func previewCollapsesPathLineBreaks() {
+        let sample = """
+        ssh steipete@192.168.64.2 'chmod 600 ~/.ssh/github_rsa && chmod 644 ~/.ssh/
+        github_rsa.pub'
+        """
+        let flattened = AggressivenessPreviewEngine.previewAfter(
+            for: sample,
+            level: .normal,
+            preserveBlankLines: false,
+            removeBoxDrawing: true)
+        #expect(flattened == "ssh steipete@192.168.64.2 'chmod 600 ~/.ssh/github_rsa && chmod 644 ~/.ssh/github_rsa.pub'")
+    }
 }

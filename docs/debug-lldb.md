@@ -1,0 +1,41 @@
+# Trimmy LLDB Drive-by Debugging
+
+Use this when you can’t click the UI (e.g., remote session) but need to exercise menu actions and inspect state end-to-end.
+
+## One-shot script (start, drive, inspect)
+```bash
+# from repo root
+tmux new -s trimdebug -d 'cd /Users/steipete/Projects/Trimmy && lldb .build/debug/Trimmy'
+tmux send-keys -t trimdebug "run" C-m
+# wait for menu to appear, then interrupt
+tmux send-keys -t trimdebug "process interrupt" C-m
+# drive Trimmy without UI clicks
+tmux send-keys -t trimdebug "expr -l Swift -- import AppKit; import Trimmy" C-m
+tmux send-keys -t trimdebug "expr -l Swift -- _ = NSPasteboard.general.setString(\"echo test\\\\nls -l\", forType: .string)" C-m
+tmux send-keys -t trimdebug "expr -l Swift -- Trimmy.DebugHooks.hotkeyManager?.trimClipboardNow()" C-m
+tmux send-keys -t trimdebug "expr -l Swift -- Trimmy.DebugHooks.monitor?.lastSummary" C-m
+# when finished
+tmux send-keys -t trimdebug "quit" C-m
+tmux kill-session -t trimdebug
+pkill -f \"Trimmy.app/Contents/MacOS/Trimmy\" || true
+```
+
+## What the commands do
+- `DebugHooks.hotkeyManager?.trimClipboardNow()` calls the same path as the “Trim Clipboard” button/hotkey (force trim + summary update).
+- `DebugHooks.monitor?.lastSummary` reads the string shown under “Last:” in the menu.
+- You can clear/reset with `DebugHooks.monitor?.lastSummary = ""` if needed.
+- To simulate the “Type Clipboard Text” path instead, set the pasteboard and call `DebugHooks.hotkeyManager?.typeTrimmedTextNow()`.
+
+## Breakpoints to inspect trimming
+Inside LLDB:
+```
+breakpoint set --file ClipboardMonitor.swift --line 50   # trimClipboardIfNeeded
+breakpoint set --file ClipboardMonitor.swift --line 90   # readTextFromPasteboard
+breakpoint set --file ClipboardMonitor.swift --line 110  # writeTrimmed
+breakpoint set --name Trimmy.ClipboardMonitor.recordSummary
+continue
+```
+Use `frame variable` and `bt` at stops to inspect flow; `force` should be `true` for manual trims.
+
+## Reset/clean
+Run `Scripts/compile_and_run.sh` to kill old instances, build, test, package, relaunch, and verify the app stays up. Always do this after code edits before debugging so you only have one Trimmy running.

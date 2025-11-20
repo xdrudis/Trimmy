@@ -3,49 +3,73 @@ import AppKit
 import Carbon
 import OSLog
 
-/// Sends synthetic key events for a given ASCII-ish string, using a US-QWERTY key map.
+/// Sends synthetic key events for a given string using US-ANSI key codes; handles modifiers pragmatically for VMs.
 @MainActor
 struct KeySender {
-    private let source = CGEventSource(stateID: .combinedSessionState)
+    private let source = CGEventSource(stateID: .hidSystemState)
 
     /// Request Accessibility/Input Monitoring if needed. Returns true when trusted.
     static func ensureAccessibility() -> Bool {
         let alreadyTrusted = AXIsProcessTrusted()
-        if alreadyTrusted {
-            Telemetry.accessibility
-                .info(
-                    "AX trusted=true bundle=\(Bundle.main.bundleIdentifier ?? "nil", privacy: .public) exec=\(Bundle.main.executableURL?.path ?? "nil", privacy: .public)")
-            return true
-        }
+        if alreadyTrusted { return true }
 
         let key = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
         let options: CFDictionary = [key: true] as CFDictionary
-        let promptedTrusted = AXIsProcessTrustedWithOptions(options)
-        Telemetry.accessibility
-            .info(
-                "AX prompt requested trusted=\(promptedTrusted, privacy: .public) bundle=\(Bundle.main.bundleIdentifier ?? "nil", privacy: .public) exec=\(Bundle.main.executableURL?.path ?? "nil", privacy: .public)")
-        return promptedTrusted
+        return AXIsProcessTrustedWithOptions(options)
     }
 
-    /// Types the provided text into the focused app. Skips characters we cannot map.
+    /// Types the provided text into the focused app using key codes (US-ANSI).
     @discardableResult
     func type(text: String) -> Bool {
         guard let source else { return false }
         var typed = false
-        for character in text {
-            guard let keyInfo = self.keyInfo(for: character) else { continue }
-            self.postKey(keyInfo.code, flags: keyInfo.flags, source: source)
-            typed = true
+
+        var shiftLatched = false
+        func ensureShift(_ down: Bool) {
+            guard shiftLatched != down else { return }
+            self.postShift(down: down, source: source)
+            shiftLatched = down
+            Self.pause(microseconds: Timings.settleAfterModifier)
         }
+
+        for character in text {
+            switch character {
+            case "\n", "\r":
+                ensureShift(false)
+                self.sendKey(code: CGKeyCode(kVK_Return), shiftDown: shiftLatched, source: source)
+                typed = true
+            case "\t":
+                ensureShift(false)
+                self.sendKey(code: CGKeyCode(kVK_Tab), shiftDown: shiftLatched, source: source)
+                typed = true
+            case " ":
+                ensureShift(false)
+                self.sendKey(code: CGKeyCode(kVK_Space), shiftDown: shiftLatched, source: source)
+                typed = true
+            default:
+                if let info = self.keyInfo(for: character) {
+                    let wantsShift = info.flags.contains(.maskShift)
+                    ensureShift(wantsShift)
+                    self.sendKey(code: info.code, shiftDown: shiftLatched, source: source)
+                    typed = true
+                }
+            }
+            Self.pause(microseconds: Timings.betweenCharacters)
+        }
+
+        if shiftLatched {
+            self.postShift(down: false, source: source)
+            Self.pause(microseconds: Timings.settleAfterModifier)
+        }
+
         return typed
     }
 
-    /// Returns the key code + modifier flags needed to emit a single character.
-    /// Exposed internally for testing.
+    /// Returns key code + flags for ASCII-ish characters.
     func keyInfo(for character: Character) -> (code: CGKeyCode, flags: CGEventFlags)? {
+        if character == " " { return (CGKeyCode(kVK_Space), []) }
         if character == "\n" || character == "\r" { return (CGKeyCode(kVK_Return), []) }
         if character == "\t" { return (CGKeyCode(kVK_Tab), []) }
-        if character == " " { return (CGKeyCode(kVK_Space), []) }
 
         if let shifted = KeySender.shiftedMap[character] {
             return shifted
@@ -60,19 +84,66 @@ struct KeySender {
 
         return nil
     }
-
-    private func postKey(_ keyCode: CGKeyCode, flags: CGEventFlags, source: CGEventSource) {
-        guard let down = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: true),
-              let up = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: false) else { return }
-        down.flags = flags
-        up.flags = flags
-        down.post(tap: .cghidEventTap)
-        up.post(tap: .cghidEventTap)
-    }
 }
 
 extension KeySender {
-    /// Base (non-shifted) characters → key codes.
+    private enum Modifier {
+        case leftShift, rightShift
+        var keyCode: CGKeyCode {
+            switch self {
+            case .leftShift: return CGKeyCode(kVK_Shift)
+            case .rightShift: return CGKeyCode(kVK_RightShift)
+            }
+        }
+    }
+
+    private struct Timings {
+        static let settleAfterModifier: useconds_t = 30000  // 30 ms
+        static let keyHold: useconds_t = 7000               // 7 ms
+        static let betweenCharacters: useconds_t = 12000    // 12 ms
+    }
+
+    private var isVMConsoleFrontmost: Bool {
+        guard let bid = NSWorkspace.shared.frontmostApplication?.bundleIdentifier else { return false }
+        return bid.hasPrefix("com.vmware.") || bid.hasPrefix("com.parallels.")
+    }
+
+    private var shiftSidesToUse: [Modifier] {
+        self.isVMConsoleFrontmost ? [.leftShift, .rightShift] : [.leftShift]
+    }
+
+    private func effectiveFlags(shiftDown: Bool) -> CGEventFlags {
+        var flags = CGEventSource.flagsState(.combinedSessionState)
+        if shiftDown { flags.insert(.maskShift) } else { flags.remove(.maskShift) }
+        return flags
+    }
+
+    private func sendKey(code: CGKeyCode, shiftDown: Bool, source: CGEventSource) {
+        let flags = self.effectiveFlags(shiftDown: shiftDown)
+        guard let down = CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: true),
+              let up = CGEvent(keyboardEventSource: source, virtualKey: code, keyDown: false)
+        else { return }
+        down.flags = flags
+        up.flags = flags
+        down.post(tap: .cghidEventTap)
+        Self.pause(microseconds: Timings.keyHold)
+        up.post(tap: .cghidEventTap)
+    }
+
+    private func postShift(down: Bool, source: CGEventSource) {
+        let flags = self.effectiveFlags(shiftDown: down)
+        for side in self.shiftSidesToUse {
+            guard let ev = CGEvent(keyboardEventSource: source, virtualKey: side.keyCode, keyDown: down) else { continue }
+            ev.flags = flags
+            ev.post(tap: .cghidEventTap)
+        }
+    }
+
+    private static func pause(microseconds: useconds_t) {
+        usleep(microseconds)
+    }
+
+    /// Base (non-shifted) characters → key codes (US ANSI).
     fileprivate static let baseMap: [Character: CGKeyCode] = [
         "a": CGKeyCode(kVK_ANSI_A), "b": CGKeyCode(kVK_ANSI_B), "c": CGKeyCode(kVK_ANSI_C),
         "d": CGKeyCode(kVK_ANSI_D), "e": CGKeyCode(kVK_ANSI_E), "f": CGKeyCode(kVK_ANSI_F),

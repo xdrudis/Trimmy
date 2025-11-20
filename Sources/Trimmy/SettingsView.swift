@@ -500,6 +500,10 @@ enum AggressivenessPreviewEngine {
             of: #"(?<!\n)([A-Z0-9_.-])\s*\n\s*([A-Z0-9_.-])(?!\n)"#,
             with: "$1$2",
             options: .regularExpression)
+        result = result.replacingOccurrences(
+            of: #"(?<=[/~])\s*\n\s*([A-Za-z0-9._-])"#,
+            with: "$1",
+            options: .regularExpression)
         result = result.replacingOccurrences(of: #"\\\s*\n"#, with: " ", options: .regularExpression)
         result = result.replacingOccurrences(of: #"\n+"#, with: " ", options: .regularExpression)
         result = result.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
