@@ -7,12 +7,12 @@
 - Menu bar entry mirrors the new Settings window—actions for Trim Clipboard, Settings…, About Trimmy, plus a multi-line “Last” preview instead of the old submenu.
 - Menu bar icon dims automatically when Auto-Trim is disabled so it’s obvious the service is paused.
 - Trimmy now runs as a single instance to avoid double clipboard watchers or duplicate menu bar icons.
-- Sparkle updater now auto-disables for unsigned/dev runs to avoid updater error dialogs during development.
-- Debug builds now use bundle ID `com.steipete.trimmy.debug` and ship with Sparkle feed disabled, so Accessibility/Input Monitoring and updater prompts stay isolated from release builds.
 - Aggressiveness previews now ship with a more illustrative “Low” example and unit tests that lock behavior for all three levels.
 - Manual “Trim Clipboard” and its global shortcut now always run at High aggressiveness, while auto-trim honors the configured level.
 - New toggle (off by default) lets you enable extra clipboard fallbacks (RTF/public text types) for apps that don’t expose plain UTF-8 content.
 - Clipboard flattening now stitches path segments split across lines (e.g. `~/.ssh/\ngithub_rsa.pub`) without inserting stray spaces; applies to auto-trim (your set aggressiveness), manual trim (High), and the Aggressiveness preview examples.
+- Sparkle updater now auto-disables for unsigned/dev runs to avoid updater error dialogs during development.
+- Debug builds now use bundle ID `com.steipete.trimmy.debug` and ship with Sparkle feed disabled, so Accessibility/Input Monitoring and updater prompts stay isolated from release builds.
 
 ## 0.2.4 — 2025-11-17
 - Last trim preview now middle-truncates long text so the menu stays compact while showing both start and end of the command.
