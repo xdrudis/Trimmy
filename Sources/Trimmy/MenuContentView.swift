@@ -57,7 +57,7 @@ struct MenuContentView: View {
     }
 
     private var targetAppLabel: String {
-        ClipboardMonitor.ellipsize(self.monitor.frontmostAppName, limit: 22)
+        ClipboardMonitor.ellipsize(self.monitor.frontmostAppName, limit: 30)
     }
 
     private func open(tab: SettingsTab) {
