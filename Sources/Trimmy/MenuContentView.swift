@@ -99,7 +99,7 @@ struct MenuContentView: View {
 extension MenuContentView {
     private var pasteButtons: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Button("Paste Trimmed to \(self.targetAppLabel)") {
+            Button("Paste Trimmed to \(self.targetAppLabel)\(self.trimmedStatsSuffix)") {
                 self.handlePasteTrimmed()
             }
             .applyKeyboardShortcut(self.pasteTrimmedKeyboardShortcut)
@@ -111,7 +111,7 @@ extension MenuContentView {
                 .truncationMode(.middle)
                 .frame(maxWidth: 260, alignment: .leading)
 
-            Button("Paste Original to \(self.targetAppLabel)") {
+            Button("Paste Original to \(self.targetAppLabel)\(self.originalStatsSuffix)") {
                 self.handlePasteOriginal()
             }
             .applyKeyboardShortcut(self.pasteOriginalKeyboardShortcut)
@@ -139,6 +139,22 @@ extension MenuContentView {
 
     private var trimmedPreviewLine: String {
         ClipboardMonitor.ellipsize(self.monitor.trimmedPreviewText(), limit: 260)
+    }
+
+    private var trimmedStatsSuffix: String {
+        self.statsSuffix(for: self.monitor.trimmedPreviewSource())
+    }
+
+    private var originalStatsSuffix: String {
+        self.statsSuffix(for: self.monitor.originalPreviewSource())
+    }
+
+    private func statsSuffix(for text: String?) -> String {
+        guard let text else { return "" }
+        let chars = text.count
+        let kb = Double(text.utf8.count) / 1024.0
+        let kbString = kb >= 0.1 ? String(format: "%.1fk", kb) : "<0.1k"
+        return " (\(chars) chars · \(kbString))"
     }
 }
 

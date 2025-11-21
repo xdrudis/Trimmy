@@ -232,6 +232,14 @@ extension ClipboardMonitor {
         }
         return "No trimmed text yet"
     }
+
+    func trimmedPreviewSource() -> String? {
+        self.lastTrimmedText ?? (self.lastSummary.isEmpty ? nil : self.lastSummary)
+    }
+
+    func originalPreviewSource() -> String? {
+        self.lastOriginalText
+    }
 }
 
 // MARK: - Helpers
