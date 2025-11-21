@@ -362,7 +362,6 @@ extension ClipboardMonitor {
                 let range = NSRange(location: offset, length: 1)
                 base.addAttributes([
                     .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                    .foregroundColor: NSColor.systemRed,
                 ], range: range)
             }
         }
@@ -377,8 +376,7 @@ extension ClipboardMonitor {
     }
 }
 
-// MARK: - Trim animation hooks
-
+#if DEBUG
 extension ClipboardMonitor {
     func triggerTrimPulse() {
         self.registerTrimEvent()
@@ -387,10 +385,7 @@ extension ClipboardMonitor {
     private func registerTrimEvent() {
         self.trimPulseID &+= 1
     }
-}
 
-#if DEBUG
-extension ClipboardMonitor {
     func debugSetPreview(original: String, trimmed: String) {
         self.lastOriginalText = original
         self.lastTrimmedText = trimmed

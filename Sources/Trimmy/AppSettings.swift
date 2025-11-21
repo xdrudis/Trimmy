@@ -72,7 +72,7 @@ final class AppSettings: ObservableObject {
     var autoTrimHotkeyEnabledChanged: ((Bool) -> Void)?
 
     #if DEBUG
-    @AppStorage("debugStrikePreviewEnabled") var debugStrikePreviewEnabled: Bool = false
+    @AppStorage("debugPaneEnabled") var debugPaneEnabled: Bool = false
     #endif
 
     init() {
