@@ -49,6 +49,7 @@ Get the precompiled binary from [Releases](https://github.com/steipete/Trimmy/re
 ## Related
 - CodexBar: keep Codex and Claude usage visible from the menu bar. Download at [codexbar.app](https://codexbar.app).
 - Trimmy: get the latest build at [trimmy.app](https://trimmy.app).
+- MCPorter: [mcporter.dev](https://mcporter.dev) — TypeScript runtime, CLI, and code-generation toolkit for the Model Context Protocol.
 
 ## License
 MIT
