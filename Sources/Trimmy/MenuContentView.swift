@@ -151,7 +151,10 @@ extension MenuContentView {
 
     private func statsSuffix(for text: String?, showTruncations: Bool) -> String {
         guard let text else { return "" }
-        return PreviewMetrics.charCountSuffix(count: text.count, limit: 50, showTruncations: showTruncations)
+        return PreviewMetrics.prettyBadge(
+            count: text.count,
+            limit: 50,
+            showTruncations: showTruncations)
     }
 }
 

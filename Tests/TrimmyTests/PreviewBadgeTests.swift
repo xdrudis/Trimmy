@@ -30,4 +30,12 @@ struct PreviewBadgeTests {
         #expect(PreviewMetrics.charCountSuffix(count: 149, limit: 50, showTruncations: false) == " (149 chars)")
         #expect(PreviewMetrics.charCountSuffix(count: 2500, limit: 50, showTruncations: false) == " (2.5k chars)")
     }
+
+    @Test
+    func prettyBadgeFormats() {
+        #expect(PreviewMetrics.prettyBadge(count: 118, limit: 50, showTruncations: false) == " · 118 chars")
+        #expect(PreviewMetrics.prettyBadge(count: 118, limit: 50, showTruncations: true) == " · 118 chars · 2 trimmed")
+        #expect(PreviewMetrics
+            .prettyBadge(count: 2500, limit: 50, showTruncations: true) == " · 2.5k chars · 49 trimmed")
+    }
 }
