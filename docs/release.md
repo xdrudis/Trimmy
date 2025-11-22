@@ -12,6 +12,7 @@ SwiftPM only; manual package/sign/notarize. Sparkle feed served from GitHub Rele
 - Developer ID Application cert installed: `Developer ID Application: Peter Steinberger (Y5PE65HELJ)`.
 - ASC API creds in env: `APP_STORE_CONNECT_API_KEY_P8`, `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`.
 - Sparkle keys: public key already in Info.plist; private key lives at `/Users/steipete/Library/CloudStorage/Dropbox/Backup/Sparkle` and its path is passed via `SPARKLE_PRIVATE_KEY_FILE` when generating the appcast.
+- Sparkle auto-checks are **enabled by default** for release builds (set in `package_app.sh`); leave this on so update checks run without user toggles.
 
 ## Icon
 If the .icon changes:
@@ -62,7 +63,7 @@ git tag v0.2.2
 - [ ] `./Scripts/build_icon.sh` if icon changed
 - [ ] `./Scripts/sign-and-notarize.sh`
 - [ ] Generate Sparkle appcast with private key
-- [ ] Upload zip + appcast to feed, publish release/tag
+- [ ] Upload zip + appcast **and the Trimmy-<ver>.dSYM.zip** to the GitHub release; publish release/tag
 - [ ] Version continuity: confirm the new version is the immediate next patch/minor (no gaps) and CHANGELOG has no skipped numbers (e.g., after 0.2.0 use 0.2.1, not 0.2.2)
 - [ ] Changelog sanity: single top-level title, no duplicate version sections, versions strictly descending with no repeats
 - [ ] Release pages: title format `Trimmy <version>`, notes as Markdown list (no stray blank lines)
@@ -75,6 +76,7 @@ git tag v0.2.2
 - [ ] After publishing, open the GitHub release page and visually confirm bullets render correctly (no literal `\n`, no duplicated/merged entries); fix via “Edit release” if anything is off.
 - [ ] Post-publish housekeeping: bump `CHANGELOG.md` by moving the shipped notes under the released version, incrementing its patch number, and add a new `Unreleased` section for the next iteration.
 - [ ] Keep an older signed build in `/Applications/Trimmy.app` (e.g., previous version) to manually verify Sparkle delta/full update to the new release.
+- [ ] Preserve the dSYM: keep `Trimmy-<ver>.dSYM.zip` attached to the release for crash symbolication.
 - [ ] For Sparkle verification: if replacing `/Applications/Trimmy.app`, first quit Trimmy, then replace the app bundle, and relaunch from `/Applications`. If a previous version is already installed there, leave it and just use it to test the update path.
 - [ ] Manual Gatekeeper sanity: after packaging, `find Trimmy.app -name '._*'` is empty, `spctl --assess --type execute --verbose Trimmy.app` and `codesign --verify --deep --strict --verbose Trimmy.app` succeed
 - **Definition of “done” for a release:** all of the above are complete, the appcast/enclosure link resolves with the right signature, and a previous public build can update to the new one via Sparkle. Anything short of that is not a finished release.
