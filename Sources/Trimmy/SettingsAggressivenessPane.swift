@@ -10,8 +10,10 @@ struct AggressivenessSettingsPane: View {
 
             Text(
                 """
-                Automatic trimming uses this aggressiveness level. Manual “Paste Trimmed” always runs at High \
-                for maximum flattening.
+                Automatic trimming uses this aggressiveness level. Low/Normal now skip code-like snippets \
+                (braces + language keywords) unless there are strong command cues. Manual “Paste Trimmed” always \
+                runs at High for maximum flattening. Leading shell prompts (#/$) are stripped when they look like \
+                commands, but Markdown-style headings stay.
                 """)
                 .font(.footnote)
                 .foregroundStyle(.tertiary)

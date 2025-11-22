@@ -5,6 +5,7 @@
 ## What it does
 - Lives in your macOS menu bar (macOS 15+). No Dock icon.
 - Watches the clipboard and, when it looks like a shell command, removes newlines (respects `\` continuations) and rewrites the clipboard automatically.
+- Strips leading shell prompts (`#`/`$`) when the line looks like a command, while leaving Markdown headings untouched.
 - Aggressiveness levels (Low/Normal/High) to control how eagerly it detects commands:
   - **Low:** only flattens when it’s obviously a command. Example: a long `kubectl ... | jq ...` multi-line snippet.
   - **Normal (default):** balances caution and helpfulness. Example: a `brew update \ && brew upgrade` copy from a blog post.
@@ -17,6 +18,32 @@
 - Auto-update via Sparkle (Check for Updates… + auto-check toggle; feed from GitHub Releases).
 - Uses a marker pasteboard type to avoid reprocessing its own writes; polls with a lightweight timer and a small grace delay to catch promised pasteboard data.
 - Safety valve: skips auto-flatten if the copy is more than 10 lines (even on High) to avoid mangling big blobs.
+
+## Aggressiveness levels & examples
+- **Low (safer)** — needs strong command cues (pipes, redirects, continuations).  
+  Before:  
+  ```
+  ls -la \
+    | grep '^d' \
+    > dirs.txt
+  ```  
+  After: `ls -la | grep '^d' > dirs.txt`
+- **Normal (default)** — README/blog-ready: handles typical multi-line commands with flags.  
+  Before:  
+  ```
+  kubectl get pods \
+    -n kube-system \
+    | jq '.items[].metadata.name'
+  ```  
+  After: `kubectl get pods -n kube-system | jq '.items[].metadata.name'`
+- **High (eager)** — flattens almost anything command-shaped, plus the manual “Paste Trimmed” hotkey always uses this level.  
+  Before:  
+  ```
+  echo "hello"
+  print status
+  ```  
+  After: `echo "hello" print status`
+- **Prompt cleanup** — copies that start with `# ` or `$ ` are de-promoted when they look like shell commands, e.g. `# brew install foo` → `brew install foo`; Markdown headings like `# Release Notes` remain untouched.
 
 ## Quick start
 Get the precompiled binary from [Releases](https://github.com/steipete/Trimmy/releases)
