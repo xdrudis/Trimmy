@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.4.2 — Unreleased
+- Menu “Paste Trimmed” and “Paste Original” previews now share the same 50-character middle ellipsis and badge stats for consistent clipping.
 
 ## 0.4.1 — 2025-11-24
 - Hardened command detection (#4): Low/Normal now skip when multi-line text looks like source code (brace + language keywords across Swift/JS/Go/Rust/Java/C#/Python, etc.) unless strong command cues are present. High/manual override still flattens on demand, so “Paste Trimmed” keeps working for power users.

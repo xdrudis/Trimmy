@@ -115,7 +115,7 @@ extension MenuContentView {
                 self.handlePasteOriginal()
             }
             .applyKeyboardShortcut(self.pasteOriginalKeyboardShortcut)
-            Text(self.monitor.struckOriginalPreview())
+            Text(self.monitor.struckOriginalPreview(limit: 50))
                 .font(.caption2).monospaced()
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
@@ -146,7 +146,7 @@ extension MenuContentView {
     }
 
     private var originalStatsSuffix: String {
-        self.statsSuffix(for: self.monitor.originalPreviewSource(), showTruncations: false)
+        self.statsSuffix(for: self.monitor.originalPreviewSource(), showTruncations: true)
     }
 
     private func statsSuffix(for text: String?, showTruncations: Bool) -> String {

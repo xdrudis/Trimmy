@@ -215,12 +215,12 @@ extension ClipboardMonitor {
         return true
     }
 
-    func struckOriginalPreview() -> AttributedString {
+    func struckOriginalPreview(limit: Int? = nil) -> AttributedString {
         guard let original = self.lastOriginalText else {
             return AttributedString(self.lastSummary.isEmpty ? "No actions yet" : self.lastSummary)
         }
         let trimmed = self.lastTrimmedText ?? original
-        return ClipboardMonitor.struck(original: original, trimmed: trimmed)
+        return ClipboardMonitor.struck(original: original, trimmed: trimmed, limit: limit)
     }
 
     func trimmedPreviewText() -> String {
@@ -364,9 +364,11 @@ extension ClipboardMonitor {
         up?.post(tap: .cghidEventTap)
     }
 
-    static func struck(original: String, trimmed: String) -> AttributedString {
-        let displayOriginal = PreviewMetrics.displayString(original)
-        let displayTrimmed = PreviewMetrics.displayString(trimmed)
+    static func struck(original: String, trimmed: String, limit: Int? = nil) -> AttributedString {
+        let baseOriginal = PreviewMetrics.displayString(original)
+        let baseTrimmed = PreviewMetrics.displayString(trimmed)
+        let displayOriginal = limit.map { ClipboardMonitor.ellipsize(baseOriginal, limit: $0) } ?? baseOriginal
+        let displayTrimmed = limit.map { ClipboardMonitor.ellipsize(baseTrimmed, limit: $0) } ?? baseTrimmed
         let base = NSMutableAttributedString(string: displayOriginal)
 
         let origChars = Array(displayOriginal)
