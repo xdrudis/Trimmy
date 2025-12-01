@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.4.4 — Unreleased
+## 0.4.5 — Unreleased
+- Pending changes.
+
+## 0.4.4 — 2025-12-01
 - Fixed a crash when opening Settings → Shortcuts by ensuring the KeyboardShortcuts resource bundle is packaged into Trimmy.app; packaging now fails if SwiftPM bundles are missing and a regression test guards bundle availability.
 
 ## 0.4.3 — 2025-11-26
