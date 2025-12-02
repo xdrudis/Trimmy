@@ -58,6 +58,13 @@ struct CommandDetector {
             }
         }
 
+        // Remove stray box-drawing decorations that appear mid-command (e.g. “| │ head -n 5” from terminal UI).
+        let boxAfterPipePattern = #"\|\s*\#(boxDrawingCharacterClass)+\s*"#
+        result = result.replacingOccurrences(
+            of: boxAfterPipePattern,
+            with: "| ",
+            options: .regularExpression)
+
         // Collapse any doubled spaces left behind after stripping the glyphs.
         let collapsed = result.replacingOccurrences(
             of: #" {2,}"#,
