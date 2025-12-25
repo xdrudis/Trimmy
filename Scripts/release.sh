@@ -34,6 +34,7 @@ require git
 require swiftlint
 require swift
 require sign_update
+require generate_appcast
 require gh
 require zip
 require curl
@@ -196,30 +197,7 @@ PY
 
 update_appcast() {
   LOG "Updating appcast.xml"
-  local pubdate
-  pubdate=$(LC_ALL=C date '+%a, %d %b %Y %H:%M:%S %z')
-  python - "$VERSION" "$BUILD" "$SIGNATURE" "$SIZE" "$pubdate" <<'PY' || exit 1
-import sys, pathlib
-ver, build, sig, size, pub = sys.argv[1:]
-path = pathlib.Path("appcast.xml")
-xml = path.read_text()
-entry = f"""        <item>
-            <title>{ver}</title>
-            <pubDate>{pub}</pubDate>
-            <link>https://raw.githubusercontent.com/steipete/Trimmy/main/appcast.xml</link>
-            <sparkle:version>{build}</sparkle:version>
-            <sparkle:shortVersionString>{ver}</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/steipete/Trimmy/releases/download/v{ver}/Trimmy-{ver}.zip" length="{size}" type="application/octet-stream" sparkle:edSignature="{sig}"/>
-        </item>
-"""
-marker = "<channel>"
-idx = xml.find(marker)
-if idx == -1:
-    raise SystemExit("no <channel> in appcast")
-insert_at = xml.find("\n", idx) + 1
-path.write_text(xml[:insert_at] + entry + xml[insert_at:])
-PY
+  ./Scripts/make_appcast.sh "${ZIP_NAME}" "https://raw.githubusercontent.com/steipete/Trimmy/main/appcast.xml"
 }
 
 verify_local_artifacts() {
