@@ -20,6 +20,7 @@ Goal: use Peekaboo to open Trimmy from the menu bar, open Settings, capture scre
 - The settings checkbox element IDs are dynamic per snapshot; capture a fresh snapshot and use those IDs.
 - Use `peekaboo see --menubar` after a menu bar click to OCR the popover when needed.
 - Remember: `peekaboo menu click --app Trimmy --item "Settings…"` is the reliable settings opener.
+- Memory hook (clipboard sanity): `peekaboo clipboard --action set --text $'ls \\\n | wc -l\n' --verify`
 
 ## Runbook
 
@@ -137,10 +138,16 @@ code /Users/steipete/Projects/Trimmy/docs/manual-testing-peekaboo.md
 Update the “Latest run” block with date, machine, and outcome.
 
 ## Latest run
-- Date: 2025-12-28 16:18 local
+- Date: 2025-12-28 16:34 local
 - Machine: macOS 26.x (arm64)
-- Menu bar capture: `see --menubar --app Trimmy` attempted auto-click; still no popover detected; OCR empty.
-- Screenshot: `/tmp/trimmy-menubar.png` (menubar OCR, empty).
+- Menu bar click: `menubar click --verify "Trimmy"` succeeded (index 7).
+- Menu bar capture: `see --menubar --app Trimmy --path /tmp/trimmy-menubar.png` selected area capture, but OCR text came from Terminal (popover still not detected via CGWindowList/AX).
+- Settings open: `peekaboo menu click --app Trimmy --item "Settings…"` succeeded; window title `General`.
+- Screenshots: `/tmp/trimmy-settings.png`, `/tmp/trimmy-settings_annotated.png`, `/tmp/trimmy-aggressive.png`, `/tmp/trimmy-aggressive_annotated.png`.
+- Aggressiveness toggles: clicked `elem_4` (Low) and `elem_6` (High) via snapshot `EA7849DB-36B8-45FF-B368-4552D9D2DC3A`.
+- Auto-trim toggle: clicked `elem_3` (off → on) via snapshot `4D9DC2D4-F27A-4C1A-98E7-F5B32EAC4EDC`.
+- Clipboard verify: `clipboard set --text ... --verify` read back both `public.plain-text` + `public.utf8-plain-text`.
+- Clipboard E2E: Auto-trim still did not change output after 0.4s and 1.5s waits (multiline unchanged).
 
 ## Previous run
 - Date: 2025-12-28 16:01 local
