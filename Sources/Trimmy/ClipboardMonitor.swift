@@ -94,6 +94,9 @@ final class ClipboardMonitor: ObservableObject {
         let current = self.pasteboard.changeCount
         guard current != self.lastSeenChangeCount else { return }
 
+        let isIgnored = self.ignoredChangeCounts.contains(current)
+        self.logPasteboardChange(changeCount: current, ignored: isIgnored)
+
         if self.ignoredChangeCounts.remove(current) != nil {
             self.lastSeenChangeCount = current
             return
@@ -109,9 +112,13 @@ final class ClipboardMonitor: ObservableObject {
     }
 
     private func readTextFromPasteboard(ignoreMarker: Bool = false) -> String? {
-        if !ignoreMarker, self.pasteboard.types?.contains(self.trimmyMarker) == true { return nil }
+        if !ignoreMarker, self.pasteboard.types?.contains(self.trimmyMarker) == true {
+            self.logPasteboardReadSkipped(reason: "trimmyMarker")
+            return nil
+        }
 
         if let direct = self.pasteboard.string(forType: .string) {
+            self.logPasteboardRead(type: .string)
             return self.normalizeLineEndings(direct)
         }
 
@@ -128,6 +135,7 @@ final class ClipboardMonitor: ObservableObject {
         for item in self.pasteboard.pasteboardItems ?? [] {
             for type in preferredTypes {
                 if let value = item.string(forType: type) {
+                    self.logPasteboardRead(type: type)
                     return self.normalizeLineEndings(value)
                 }
             }
@@ -188,6 +196,21 @@ final class ClipboardMonitor: ObservableObject {
             return
         }
         self.frontmostAppName = app.localizedName ?? "current app"
+    }
+
+    private func logPasteboardChange(changeCount: Int, ignored: Bool) {
+        let types = self.pasteboard.types?.map(\.rawValue).joined(separator: ", ") ?? "none"
+        Telemetry.clipboard.debug(
+            "Pasteboard changeCount=\(changeCount, privacy: .public) ignored=\(ignored, privacy: .public) types=\(types, privacy: .public)"
+        )
+    }
+
+    private func logPasteboardRead(type: NSPasteboard.PasteboardType) {
+        Telemetry.clipboard.debug("Pasteboard read type=\(type.rawValue, privacy: .public)")
+    }
+
+    private func logPasteboardReadSkipped(reason: String) {
+        Telemetry.clipboard.debug("Pasteboard read skipped reason=\(reason, privacy: .public)")
     }
 }
 
