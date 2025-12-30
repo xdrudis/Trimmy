@@ -9,10 +9,8 @@
 - Lives in your macOS menu bar (macOS 15+). No Dock icon.
 - Watches the clipboard and, when it looks like a shell command, removes newlines (respects `\` continuations) and rewrites the clipboard automatically.
 - Strips leading shell prompts (`#`/`$`) when the line looks like a command, while leaving Markdown headings untouched.
-- Aggressiveness levels (Low/Normal/High) to control how eagerly it detects commands:
-  - **Low:** only flattens when it’s obviously a command. Example: a long `kubectl ... | jq ...` multi-line snippet.
-  - **Normal (default):** balances caution and helpfulness. Example: a `brew update \ && brew upgrade` copy from a blog post.
-  - **High:** flattens almost any multi-line text that *could* be a command. Example: a quick two-line `ls` + `cd` copied from chat.
+- Aggressiveness is configurable separately for regular apps and terminals (defaults: Low for general apps, Normal for terminals), with a “None” option to disable auto-trim in regular apps.
+- Detects terminal apps (Terminal/iTerm/Ghostty/Warp/WezTerm/Alacritty/Hyper/kitty) and applies the terminal-specific aggressiveness when context-aware trimming is enabled.
 - Optional "Keep blank lines" so scripts with intentional spacing stay readable.
 - Optional "Remove box drawing chars (│┃)" to strip prompt-style gutters (any count, leading or trailing) and collapse the leftover whitespace.
 - "Paste Trimmed" button + hotkey trims on-the-fly and pastes without permanently altering the clipboard (uses High aggressiveness); shows the target app (e.g., “Paste Trimmed to Ghostty”) and strikes out removed chars in the preview.
@@ -23,6 +21,8 @@
 - Safety valve: skips auto-flatten if the copy is more than 10 lines (even on High) to avoid mangling big blobs.
 
 ## Aggressiveness levels & examples
+General apps:
+- **None** — no auto-flattening for non-terminal apps.
 - **Low (safer)** — needs strong command cues (pipes, redirects, continuations).  
   Before:  
   ```
@@ -31,7 +31,7 @@
     > dirs.txt
   ```  
   After: `ls -la | grep '^d' > dirs.txt`
-- **Normal (default)** — README/blog-ready: handles typical multi-line commands with flags.  
+- **Normal** — README/blog-ready: handles typical multi-line commands with flags.  
   Before:  
   ```
   kubectl get pods \
@@ -47,6 +47,9 @@
   ```  
   After: `echo "hello" print status`
 - **Prompt cleanup** — copies that start with `# ` or `$ ` are de-promoted when they look like shell commands, e.g. `# brew install foo` → `brew install foo`; Markdown headings like `# Release Notes` remain untouched.
+
+Terminals:
+- Uses its own Low/Normal/High selector (default: Normal) whenever a terminal app is detected and Context-aware trimming is enabled.
 
 ## Quick start
 Get the precompiled binary from [Releases](https://github.com/steipete/Trimmy/releases) or install via Homebrew:

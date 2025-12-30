@@ -59,7 +59,8 @@ In a `Settings` scene, `TabView` renders as the classic toolbar tabs: centered S
 ## 3) Two-column rows via `Form` + `.formStyle(.grouped)` and `LabeledContent`
 ```swift
 struct GeneralSettingsPane: View {
-    @AppStorage("aggressiveness") private var aggressiveness: Aggressiveness = .normal
+    @AppStorage("generalAggressiveness") private var generalAggressiveness: GeneralAggressiveness = .low
+    @AppStorage("terminalAggressiveness") private var terminalAggressiveness: Aggressiveness = .normal
     @AppStorage("autoTrimEnabled") private var autoTrimEnabled = true
     @AppStorage("preserveBlankLines") private var preserveBlankLines = false
     @AppStorage("removeBoxDrawing") private var removeBoxDrawing = true
@@ -67,8 +68,15 @@ struct GeneralSettingsPane: View {
 
     var body: some View {
         Form {
-            Picker("Aggressiveness", selection: $aggressiveness) {
-                ForEach(Aggressiveness.allCases) { Text($0.title).tag($0) }
+            LabeledContent("General apps") {
+                Picker("", selection: $generalAggressiveness) {
+                    ForEach(GeneralAggressiveness.allCases) { Text($0.title).tag($0) }
+                }
+            }
+            LabeledContent("Terminals") {
+                Picker("", selection: $terminalAggressiveness) {
+                    ForEach(Aggressiveness.allCases) { Text($0.title).tag($0) }
+                }
             }
 
             LabeledContent("Auto-trim") { Toggle("", isOn: $autoTrimEnabled) }

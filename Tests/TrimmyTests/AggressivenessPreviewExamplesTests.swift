@@ -7,7 +7,7 @@ import TrimmyCore
 struct AggressivenessPreviewExamplesTests {
     @Test
     func lowExampleFlattensToSingleLine() {
-        let sample = AggressivenessExample.example(for: .low).sample
+        let sample = AggressivenessExample.example(for: Aggressiveness.low).sample
         let flattened = AggressivenessPreviewEngine.previewAfter(
             for: sample,
             level: .low,
@@ -18,7 +18,7 @@ struct AggressivenessPreviewExamplesTests {
 
     @Test
     func normalExampleMatchesExpectation() {
-        let sample = AggressivenessExample.example(for: .normal).sample
+        let sample = AggressivenessExample.example(for: Aggressiveness.normal).sample
         let flattened = AggressivenessPreviewEngine.previewAfter(
             for: sample,
             level: .normal,
@@ -29,7 +29,7 @@ struct AggressivenessPreviewExamplesTests {
 
     @Test
     func highExampleCollapsesLooseCommands() {
-        let sample = AggressivenessExample.example(for: .high).sample
+        let sample = AggressivenessExample.example(for: Aggressiveness.high).sample
         let flattened = AggressivenessPreviewEngine.previewAfter(
             for: sample,
             level: .high,

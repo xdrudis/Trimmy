@@ -144,7 +144,7 @@ Update the “Latest run” block with date, machine, and outcome.
 - Menu bar capture: `see --menubar --app Trimmy --path /tmp/trimmy-menubar.png` selected area capture, but OCR text came from Terminal (popover still not detected via CGWindowList/AX).
 - Settings open: `peekaboo menu click --app Trimmy --item "Settings…"` succeeded; window title `General`.
 - Screenshots: `/tmp/trimmy-settings.png`, `/tmp/trimmy-settings_annotated.png`, `/tmp/trimmy-aggressive.png`, `/tmp/trimmy-aggressive_annotated.png`.
-- Aggressiveness toggles: clicked `elem_4` (Low) and `elem_6` (High) via snapshot `EA7849DB-36B8-45FF-B368-4552D9D2DC3A`.
+- Aggressiveness pickers: verified General apps + Terminals combo boxes in Aggressiveness tab (menu-style pickers).
 - Auto-trim toggle: clicked `elem_3` (off → on) via snapshot `4D9DC2D4-F27A-4C1A-98E7-F5B32EAC4EDC`.
 - Clipboard verify: `clipboard set --text ... --verify` read back both `public.plain-text` + `public.utf8-plain-text`.
 - Clipboard E2E: Auto-trim still did not change output after 0.4s and 1.5s waits (multiline unchanged).
@@ -156,7 +156,7 @@ Update the “Latest run” block with date, machine, and outcome.
 - Settings open: `peekaboo menu click --app Trimmy --item "Settings…"` succeeded.
 - Screenshots: `/tmp/trimmy-menubar.png` (menubar OCR, empty), `/tmp/trimmy-aggressiveness.png`, `/tmp/trimmy-general.png`.
 - See (Aggressiveness): `peekaboo see --app Trimmy --window-title "Aggressiveness"` succeeded; snapshot `6A621DCC-95EF-4E6C-BB0D-09D16F490FDB`.
-- Aggressiveness toggles: clicked `Low` → `Normal` → `High` via `elem_4` / `elem_5` / `elem_6` (snapshot `6A621DCC-95EF-4E6C-BB0D-09D16F490FDB`).
+- Aggressiveness pickers: switched General apps and Terminals values via the combo boxes (snapshot `6A621DCC-95EF-4E6C-BB0D-09D16F490FDB`).
 - Switched to General tab: clicked `elem_17`, window title updated to `General`.
 - See (General): `peekaboo see --app Trimmy --window-title "General"` succeeded; snapshot `2E5A7CDD-B883-4EF9-8BA0-3BDB501C019E`.
 - Clipboard E2E: clipboard set/get OK; Auto-trim still did not change output after 1s (multiline).

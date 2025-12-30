@@ -18,7 +18,8 @@ struct GeneralSettingsPane: View {
 
             PreferenceToggleRow(
                 title: "Context-aware trimming",
-                subtitle: "Be more eager for Terminal/iTerm/kitty/Warp copies (Cmd-C detection + app snapshot).",
+                subtitle: "Use the terminal-specific aggressiveness when a terminal is detected "
+                    + "(Cmd-C + app snapshot).",
                 binding: self.$settings.contextAwareTrimmingEnabled)
 
             PreferenceToggleRow(

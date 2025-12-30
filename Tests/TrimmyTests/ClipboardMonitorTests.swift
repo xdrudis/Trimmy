@@ -114,7 +114,7 @@ struct ClipboardMonitorTests {
     @Test
     func repairsWrappedURLEvenWhenAggressivenessIsLow() {
         let settings = AppSettings()
-        settings.aggressiveness = .low
+        settings.generalAggressiveness = .low
         settings.autoTrimEnabled = true
         let pasteboard = makeTestPasteboard()
         let monitor = ClipboardMonitor(
@@ -141,7 +141,7 @@ struct ClipboardMonitorTests {
     @Test
     func leavesMultipleSeparateUrlsUntouched() {
         let settings = AppSettings()
-        settings.aggressiveness = .low
+        settings.generalAggressiveness = .low
         settings.autoTrimEnabled = true
         let pasteboard = makeTestPasteboard()
         let monitor = ClipboardMonitor(

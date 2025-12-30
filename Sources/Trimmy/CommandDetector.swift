@@ -19,7 +19,23 @@ struct CommandDetector {
     }
 
     func transformIfCommand(_ text: String, aggressivenessOverride: Aggressiveness? = nil) -> String? {
-        self.cleaner.transformIfCommand(text, config: self.config(), aggressivenessOverride: aggressivenessOverride)
+        let baseAggressiveness = self.settings.generalAggressiveness.coreAggressiveness
+        guard let aggressiveness = aggressivenessOverride ?? baseAggressiveness else { return nil }
+        return self.transformIfCommand(
+            text,
+            aggressiveness: aggressiveness,
+            aggressivenessOverride: aggressivenessOverride)
+    }
+
+    func transformIfCommand(
+        _ text: String,
+        aggressiveness: Aggressiveness,
+        aggressivenessOverride: Aggressiveness? = nil) -> String?
+    {
+        self.cleaner.transformIfCommand(
+            text,
+            config: self.config(aggressiveness: aggressiveness),
+            aggressivenessOverride: aggressivenessOverride)
     }
 
     nonisolated static func stripBoxDrawingCharacters(in text: String) -> String? {
@@ -28,9 +44,9 @@ struct CommandDetector {
 
     // MARK: - Helpers
 
-    private func config() -> TrimConfig {
+    private func config(aggressiveness: Aggressiveness) -> TrimConfig {
         TrimConfig(
-            aggressiveness: self.settings.aggressiveness,
+            aggressiveness: aggressiveness,
             preserveBlankLines: self.settings.preserveBlankLines,
             removeBoxDrawing: self.settings.removeBoxDrawing)
     }

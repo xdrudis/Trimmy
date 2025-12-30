@@ -10,7 +10,7 @@ read_when:
 
 ## Purpose
 - macOS 15+ menu-bar utility that watches the pasteboard for copied terminal commands and automatically flattens line breaks to make commands pasteable in one go.
-- Avoids mangling non-command text via heuristics and user-configurable aggressiveness.
+- Avoids mangling non-command text via heuristics and user-configurable aggressiveness for general apps and terminals.
 
 ## Functional Requirements
 1. **Clipboard watcher** polls `NSPasteboard.general` via a GCD `DispatchSourceTimer` (~150ms, small leeway) to detect ownership changes promptly and rewrites text in-place when it detects shell-like multi-line content.
@@ -21,9 +21,9 @@ read_when:
    - "Command-looking" leading tokens (incl. sudo)
    - All lines resembling command syntax
 3. **Aggressiveness levels** (user setting):
-   - Low: require ≥3 heuristic hits
-   - Normal (default): require ≥2 hits
-   - High: require ≥1 hit (most eager)
+   - General apps: None / Low / Normal / High (default: Low).
+   - Terminals: Low / Normal / High (default: Normal).
+   - Context-aware trimming applies the terminal level when a terminal app is detected.
 4. **Blank-line handling** (checkbox): when enabled, empty lines are preserved during flattening; otherwise all newlines collapse to spaces.
 5. **Auto-trim toggle**: enable/disable automatic rewrite without quitting the app; manual "Paste Trimmed" works regardless and does not permanently alter the clipboard.
 6. **Self-write marker**: Trimmy writes an extra pasteboard type (`com.steipete.trimmy`) so subsequent polls can ignore its own writes and only react to user changes.
@@ -31,7 +31,7 @@ read_when:
 8. **Robust text read**: prefers `readObjects(forClasses:[NSString.self])`, falls back to common public text UTI types before declaring “no text”.
 9. **UI**
    - Menu bar icon/text "Trimmy" with menu items: Auto-Trim toggle, "Paste Trimmed", "Paste Original", status line showing last action preview, Quit.
-   - SwiftUI Settings window (macOS-standard Settings scene) with Aggressiveness picker (Low/Normal/High), Keep blank lines checkbox, Auto-trim checkbox.
+   - SwiftUI Settings window (macOS-standard Settings scene) with Aggressiveness pickers for General apps and Terminals, plus Keep blank lines and Auto-trim checkboxes.
 7. **Last action preview**: menu shows truncated (~70 chars) version of last trimmed command.
 8. **Accessory app**: no Dock icon, lives in menu bar; quit from menu.
 9. **Accessibility permission UX**: when Accessibility is missing, Trimmy blocks paste commands and shows actionable callouts (menu + Settings) to trigger the system prompt and open the Privacy & Security › Accessibility pane.

@@ -9,7 +9,7 @@ struct TrimmyTests {
     @Test
     func detectsMultiLineCommand() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         settings.preserveBlankLines = false
         let detector = CommandDetector(settings: settings)
         let text = "echo hi\nls -la\n"
@@ -19,7 +19,7 @@ struct TrimmyTests {
     @Test
     func skipsSingleLine() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         #expect(detector.transformIfCommand("ls -la") == nil)
     }
@@ -27,7 +27,7 @@ struct TrimmyTests {
     @Test
     func skipsLongCopies() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let blob = Array(repeating: "echo hi", count: 11).joined(separator: "\n")
         #expect(detector.transformIfCommand(blob) == nil)
@@ -36,7 +36,7 @@ struct TrimmyTests {
     @Test
     func leavesStructuredJsonAlone() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let json = """
         {
@@ -63,7 +63,7 @@ struct TrimmyTests {
     @Test
     func preservesBlankLinesWhenEnabled() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         settings.preserveBlankLines = true
         let detector = CommandDetector(settings: settings)
         let text = "echo hi\n\necho bye\n"
@@ -73,7 +73,7 @@ struct TrimmyTests {
     @Test
     func flattensBackslashContinuations() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = """
         python script.py \\
@@ -86,7 +86,7 @@ struct TrimmyTests {
     @Test
     func flattensIndentedContinuationArguments() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = """
         gog auth add
@@ -98,7 +98,7 @@ struct TrimmyTests {
     @Test
     func repairsAllCapsTokenBreaks() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = "N\nODE_PATH=/usr/bin\nls"
         #expect(detector.transformIfCommand(text) == "NODE_PATH=/usr/bin ls")
@@ -107,7 +107,7 @@ struct TrimmyTests {
     @Test
     func joinsHyphenWrappedSegments() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = """
         open src/statics/qrcode/scan-qr-f1cc4328-eb1d-4a3c-9bd2-
@@ -120,7 +120,7 @@ struct TrimmyTests {
     @Test
     func doesNotMergeListBullets() {
         let settings = AppSettings()
-        settings.aggressiveness = .high
+        settings.generalAggressiveness = .high
         let detector = CommandDetector(settings: settings)
         let text = """
         - item one
@@ -165,7 +165,7 @@ struct TrimmyTests {
     func collapsesBlankLinesWhenNotPreserved() {
         let settings = AppSettings()
         settings.preserveBlankLines = false
-        settings.aggressiveness = .high // allow flattening with minimal cues
+        settings.generalAggressiveness = .high // allow flattening with minimal cues
         let detector = CommandDetector(settings: settings)
         let text = "echo a\n\necho b"
         #expect(detector.transformIfCommand(text) == "echo a echo b")
@@ -174,7 +174,7 @@ struct TrimmyTests {
     @Test
     func ignoresHarmlessMultilineText() {
         let settings = AppSettings()
-        settings.aggressiveness = .low // stricter threshold to avoid flattening prose
+        settings.generalAggressiveness = .low // stricter threshold to avoid flattening prose
         let detector = CommandDetector(settings: settings)
         let text = "Shopping list:\napples\noranges"
         #expect(detector.transformIfCommand(text) == nil)
@@ -183,7 +183,7 @@ struct TrimmyTests {
     @Test
     func pyenvInitStaysMultilineAtNormal() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = """
         export PYENV_ROOT="$HOME/.pyenv"
@@ -199,7 +199,7 @@ struct TrimmyTests {
     @Test
     func lowAggressivenessNeedsClearSignals() {
         let settings = AppSettings()
-        settings.aggressiveness = .low
+        settings.generalAggressiveness = .low
         let detector = CommandDetector(settings: settings)
         let text = """
         echo hello
@@ -211,7 +211,7 @@ struct TrimmyTests {
     @Test
     func highAggressivenessFlattensLooseCommands() {
         let settings = AppSettings()
-        settings.aggressiveness = .high
+        settings.generalAggressiveness = .high
         let detector = CommandDetector(settings: settings)
         let text = """
         npm
@@ -223,7 +223,7 @@ struct TrimmyTests {
     @Test(arguments: Aggressiveness.allCases)
     func aggressivenessThresholds(_ level: Aggressiveness) {
         let settings = AppSettings()
-        settings.aggressiveness = level
+        settings.generalAggressiveness = GeneralAggressiveness(rawValue: level.rawValue) ?? .normal
         let detector = CommandDetector(settings: settings)
         let text = """
         echo hi \\
@@ -236,7 +236,7 @@ struct TrimmyTests {
     @Test
     func normalAggressivenessKeepsNonCommands() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = """
         Meeting notes:
@@ -249,7 +249,7 @@ struct TrimmyTests {
     @Test
     func normalSkipsPlainIdLists() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let ids = """
         3c43356531
@@ -264,7 +264,7 @@ struct TrimmyTests {
     @Test
     func skipsLongerMultilineSnippetsInNormalMode() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = "curl https://example.com \\\n"
             + "  -H \"a: b\" \\\n"
@@ -281,7 +281,7 @@ struct TrimmyTests {
     @Test
     func normalDoesNotFlattenSwiftSnippet() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let swiftSnippet = """
         // MARK: Shape
@@ -305,7 +305,7 @@ struct TrimmyTests {
     @Test
     func lowSkipsCodeButHighOverrideAllowsIt() {
         let settings = AppSettings()
-        settings.aggressiveness = .low
+        settings.generalAggressiveness = .low
         let detector = CommandDetector(settings: settings)
         let code = """
         extension Foo {
@@ -323,7 +323,7 @@ struct TrimmyTests {
     @Test
     func normalSkipsStructDefinition() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let code = """
         struct Widget {
@@ -337,7 +337,7 @@ struct TrimmyTests {
     @Test
     func highOverrideFlattensStructDefinition() {
         let settings = AppSettings()
-        settings.aggressiveness = .low
+        settings.generalAggressiveness = .low
         let detector = CommandDetector(settings: settings)
         let code = """
         struct Gadget {
@@ -353,7 +353,7 @@ struct TrimmyTests {
     @Test
     func preserveBlankLinesRoundTrip() {
         let settings = AppSettings()
-        settings.aggressiveness = .high
+        settings.generalAggressiveness = .high
         settings.preserveBlankLines = true
         let detector = CommandDetector(settings: settings)
         let text = """
@@ -368,7 +368,7 @@ struct TrimmyTests {
     @Test
     func backslashWithoutCommandShouldFlattenOnlyWhenHigh() {
         let settings = AppSettings()
-        settings.aggressiveness = .low
+        settings.generalAggressiveness = .low
         let detectorLow = CommandDetector(settings: settings)
         let text = """
         Not really a command \\
@@ -377,7 +377,7 @@ struct TrimmyTests {
         #expect(detectorLow.transformIfCommand(text) == "Not really a command just text")
 
         let settingsHigh = AppSettings()
-        settingsHigh.aggressiveness = .high
+        settingsHigh.generalAggressiveness = .high
         let detectorHigh = CommandDetector(settings: settingsHigh)
         #expect(detectorHigh.transformIfCommand(text) == "Not really a command just text")
     }
@@ -430,7 +430,7 @@ struct TrimmyTests {
     func boxDrawingRemovalStillAllowsCommandFlattening() {
         let settings = AppSettings()
         settings.removeBoxDrawing = true
-        settings.aggressiveness = .high
+        settings.generalAggressiveness = .high
         let detector = CommandDetector(settings: settings)
         // Simulate a multi-line prompt wrapped with box characters.
         let text = """
@@ -447,7 +447,7 @@ struct TrimmyTests {
     func stripsLeadingBoxRunsAcrossLines() {
         let settings = AppSettings()
         settings.removeBoxDrawing = true
-        settings.aggressiveness = .high
+        settings.generalAggressiveness = .high
         let detector = CommandDetector(settings: settings)
         let text = """
         │ ls -la \\
@@ -462,7 +462,7 @@ struct TrimmyTests {
     func stripsTrailingBoxRunsAcrossLines() {
         let settings = AppSettings()
         settings.removeBoxDrawing = true
-        settings.aggressiveness = .high
+        settings.generalAggressiveness = .high
         let detector = CommandDetector(settings: settings)
         let text = """
         echo hi │
@@ -527,7 +527,7 @@ struct TrimmyTests {
     func stripsBothSidesWhenMostLinesDo() {
         let settings = AppSettings()
         settings.removeBoxDrawing = true
-        settings.aggressiveness = .high
+        settings.generalAggressiveness = .high
         let detector = CommandDetector(settings: settings)
         let text = """
         │ ls -la │
@@ -559,7 +559,7 @@ struct TrimmyTests {
     func stripsLeadingAndTrailingBoxRunsWithMixedCounts() {
         let settings = AppSettings()
         settings.removeBoxDrawing = true
-        settings.aggressiveness = .high
+        settings.generalAggressiveness = .high
         let detector = CommandDetector(settings: settings)
         let text = """
         ││ curl https://example.com │
@@ -609,7 +609,7 @@ struct TrimmyTests {
     @Test
     func stripsPromptFromSingleLineCommand() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = "# some-cli hello"
         #expect(detector.stripPromptPrefixes(text) == "some-cli hello")
@@ -618,7 +618,7 @@ struct TrimmyTests {
     @Test
     func doesNotStripMarkdownHeading() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         #expect(detector.stripPromptPrefixes("# Release Notes") == nil)
     }
@@ -626,7 +626,7 @@ struct TrimmyTests {
     @Test
     func stripsPromptAcrossMajorityOfLines() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = """
         # brew install foo
@@ -641,7 +641,7 @@ struct TrimmyTests {
     @Test
     func doesNotStripPromptWhenOnlyOneLineLooksLikeHeading() {
         let settings = AppSettings()
-        settings.aggressiveness = .normal
+        settings.generalAggressiveness = .normal
         let detector = CommandDetector(settings: settings)
         let text = """
         # Release notes

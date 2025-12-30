@@ -7,21 +7,49 @@ struct AggressivenessSettingsPane: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            AggressivenessRow(selection: self.$settings.aggressiveness)
+            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 10) {
+                GridRow {
+                    Text("General apps")
+                        .frame(minWidth: 110, alignment: .leading)
+                    Picker("", selection: self.$settings.generalAggressiveness) {
+                        ForEach(GeneralAggressiveness.allCases) { level in
+                            Text(level.title).tag(level)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .frame(minWidth: 180, alignment: .leading)
+                }
+
+                GridRow {
+                    Text("Terminals")
+                        .frame(minWidth: 110, alignment: .leading)
+                    Picker("", selection: self.$settings.terminalAggressiveness) {
+                        ForEach(Aggressiveness.allCases) { level in
+                            Text(level.title).tag(level)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .frame(minWidth: 180, alignment: .leading)
+                }
+            }
 
             Text(
                 """
-                Automatic trimming uses this aggressiveness level. Low/Normal now skip code-like snippets \
-                (braces + language keywords) unless there are strong command cues. Manual “Paste Trimmed” always \
-                runs at High for maximum flattening. Leading shell prompts (#/$) are stripped when they look like \
-                commands, but Markdown-style headings stay.
+                Automatic trimming uses separate aggressiveness levels for regular apps and terminals. \
+                The terminal setting only applies when Context-aware trimming is enabled. “None” disables \
+                command flattening for regular apps, but manual “Paste Trimmed” always runs at High. \
+                Low/Normal skip code-like snippets (braces + language keywords) unless there are strong \
+                command cues. Leading shell prompts (#/$) are stripped when they look like commands, but \
+                Markdown-style headings stay.
                 """)
                 .font(.footnote)
                 .foregroundStyle(.tertiary)
                 .fixedSize(horizontal: false, vertical: true)
 
             AggressivenessPreview(
-                level: self.settings.aggressiveness,
+                level: self.settings.generalAggressiveness,
                 preserveBlankLines: self.settings.preserveBlankLines,
                 removeBoxDrawing: self.settings.removeBoxDrawing)
                 .padding(.top, 2)
@@ -32,29 +60,8 @@ struct AggressivenessSettingsPane: View {
 }
 
 @MainActor
-struct AggressivenessRow: View {
-    @Binding var selection: Aggressiveness
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Picker("", selection: self.$selection) {
-                ForEach(Aggressiveness.allCases) { level in
-                    Text(level.title).tag(level)
-                }
-            }
-            .pickerStyle(.radioGroup)
-
-            Text(self.selection.blurb)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-}
-
-@MainActor
 struct AggressivenessPreview: View {
-    let level: Aggressiveness
+    let level: GeneralAggressiveness
     let preserveBlankLines: Bool
     let removeBoxDrawing: Bool
 
@@ -78,7 +85,7 @@ struct AggressivenessPreview: View {
                     title: "After",
                     text: AggressivenessPreviewEngine.previewAfter(
                         for: self.example.sample,
-                        level: self.level,
+                        level: self.level.coreAggressiveness,
                         preserveBlankLines: self.preserveBlankLines,
                         removeBoxDrawing: self.removeBoxDrawing))
             }
@@ -96,7 +103,7 @@ struct AggressivenessPreview: View {
 enum AggressivenessPreviewEngine {
     static func previewAfter(
         for sample: String,
-        level: Aggressiveness,
+        level: Aggressiveness?,
         preserveBlankLines: Bool,
         removeBoxDrawing: Bool) -> String
     {
@@ -104,6 +111,7 @@ enum AggressivenessPreviewEngine {
         if removeBoxDrawing {
             text = CommandDetector.stripBoxDrawingCharacters(in: text) ?? text
         }
+        guard let level else { return text }
         let score = self.score(for: text)
         guard score >= level.scoreThreshold else { return text }
         return self.flatten(text, preserveBlankLines: preserveBlankLines)
@@ -152,6 +160,26 @@ struct AggressivenessExample {
     let caption: String
     let sample: String
     let note: String?
+
+    static func example(for level: GeneralAggressiveness) -> AggressivenessExample {
+        switch level {
+        case .none:
+            AggressivenessExample(
+                title: "None keeps regular app copies intact",
+                caption: "Auto-trim stays off for non-terminal apps.",
+                sample: """
+                brew update \\
+                  && brew upgrade
+                """,
+                note: "Manual “Paste Trimmed” still uses High, and terminals use their own level.")
+        case .low:
+            self.example(for: Aggressiveness.low)
+        case .normal:
+            self.example(for: Aggressiveness.normal)
+        case .high:
+            self.example(for: Aggressiveness.high)
+        }
+    }
 
     static func example(for level: Aggressiveness) -> AggressivenessExample {
         switch level {

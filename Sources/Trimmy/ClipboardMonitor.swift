@@ -131,7 +131,7 @@ final class ClipboardMonitor: ObservableObject {
         let sourceContext = self.sourceTracker.recordObservedChangeCount(observed)
         Telemetry.clipboard.debug(
             "Observed changeCount=\(observed, privacy: .public) src=\(sourceContext.debugLabel, privacy: .public).")
-        Telemetry.clipboard.notice(
+        Telemetry.clipboard.debug(
             """
             Clipboard observed src=\(sourceContext.debugLabel, privacy: .public) \
             terminal=\(sourceContext.isTerminal, privacy: .public) \
@@ -242,7 +242,11 @@ final class ClipboardMonitor: ObservableObject {
     private func logPasteboardChange(changeCount: Int, ignored: Bool) {
         let types = self.pasteboard.types?.map(\.rawValue).joined(separator: ", ") ?? "none"
         Telemetry.clipboard.debug(
-            "Pasteboard changeCount=\(changeCount, privacy: .public) ignored=\(ignored, privacy: .public) types=\(types, privacy: .public)")
+            """
+            Pasteboard changeCount=\(changeCount, privacy: .public) \
+            ignored=\(ignored, privacy: .public) \
+            types=\(types, privacy: .public)
+            """)
     }
 
     private func logPasteboardRead(type: NSPasteboard.PasteboardType) {
@@ -255,7 +259,11 @@ final class ClipboardMonitor: ObservableObject {
 
     private func logTrimCheck(changeCount: Int, force: Bool) {
         Telemetry.clipboard.debug(
-            "Trim check changeCount=\(changeCount, privacy: .public) autoTrimEnabled=\(self.settings.autoTrimEnabled, privacy: .public) force=\(force, privacy: .public)")
+            """
+            Trim check changeCount=\(changeCount, privacy: .public) \
+            autoTrimEnabled=\(self.settings.autoTrimEnabled, privacy: .public) \
+            force=\(force, privacy: .public)
+            """)
     }
 
     private func logTrimSkip(reason: String, force: Bool) {
@@ -273,7 +281,7 @@ final class ClipboardMonitor: ObservableObject {
         let originalCount = original.count
         let trimmedCount = trimmed.count
         if let sourceContext {
-            Telemetry.clipboard.notice(
+            Telemetry.clipboard.debug(
                 """
                 Trim applied src=\(sourceContext.debugLabel, privacy: .public) \
                 terminal=\(sourceContext.isTerminal, privacy: .public) \
@@ -282,8 +290,12 @@ final class ClipboardMonitor: ObservableObject {
                 lengths=\(originalCount, privacy: .public)->\(trimmedCount, privacy: .public).
                 """)
         } else {
-            Telemetry.clipboard.notice(
-                "Trim applied src=unknown transformed=\(transformed, privacy: .public) force=\(force, privacy: .public) lengths=\(originalCount, privacy: .public)->\(trimmedCount, privacy: .public)")
+            Telemetry.clipboard.debug(
+                """
+                Trim applied src=unknown transformed=\(transformed, privacy: .public) \
+                force=\(force, privacy: .public) \
+                lengths=\(originalCount, privacy: .public)->\(trimmedCount, privacy: .public)
+                """)
         }
     }
 }
@@ -425,17 +437,27 @@ extension ClipboardMonitor {
             wasTransformed = true
         }
 
-        let shouldBoost = !force && self.settings.contextAwareTrimmingEnabled && (sourceContext?.isTerminal == true)
-        let overrideAggressiveness: Aggressiveness? = (force || shouldBoost) ? .high : nil
+        let isTerminal = sourceContext?.isTerminal == true
+        let useTerminalAggressiveness = isTerminal && self.settings.contextAwareTrimmingEnabled
+        let baseAggressiveness = useTerminalAggressiveness
+            ? self.settings.terminalAggressiveness
+            : self.settings.generalAggressiveness.coreAggressiveness
+        let overrideAggressiveness: Aggressiveness? = force ? .high : nil
+        let commandAggressiveness = overrideAggressiveness ?? baseAggressiveness
 
-        if shouldBoost, let sourceContext {
+        if useTerminalAggressiveness, let sourceContext {
             Telemetry.clipboard.debug(
-                "Aggressiveness boosted to high (src=\(sourceContext.debugLabel, privacy: .public)).")
+                """
+                Using terminal aggressiveness=\(self.settings.terminalAggressiveness.titleShort, privacy: .public) \
+                src=\(sourceContext.debugLabel, privacy: .public).
+                """)
         }
 
-        if let commandTransformed = self.detector.transformIfCommand(
-            currentText,
-            aggressivenessOverride: overrideAggressiveness)
+        if let commandAggressiveness,
+           let commandTransformed = self.detector.transformIfCommand(
+               currentText,
+               aggressiveness: commandAggressiveness,
+               aggressivenessOverride: overrideAggressiveness)
         {
             currentText = commandTransformed
             wasTransformed = true

@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.7.0 — Unreleased
-- Context-aware trimming: detect copies from Terminal/iTerm/kitty/Warp and trim more eagerly (Cmd-C tracking + frontmost-app fallback).
+## 0.7.0 — 2025-12-30
+- **Highlight:** Context-aware trimming with terminal detection, plus per-terminal aggressiveness (Cmd-C tracking + frontmost-app fallback).
 - Terminal detection now covers Ghostty, WezTerm, Alacritty, Hyper, and Warp Stable bundle IDs for context-aware trimming.
+- Aggressiveness now splits between general apps and terminals (defaults: Low + Normal), plus a “None” option to disable auto-trim in regular apps.
 - Settings: added Advanced tab and moved CLI installer, debug tools, and clipboard fallbacks there.
 - Menu bar icon now animates whenever a trim happens.
 
