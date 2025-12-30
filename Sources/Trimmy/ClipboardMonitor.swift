@@ -107,7 +107,8 @@ final class ClipboardMonitor: ObservableObject {
             original: variants.original,
             trimmed: variants.trimmed,
             force: force,
-            transformed: variants.wasTransformed)
+            transformed: variants.wasTransformed,
+            sourceContext: sourceContext)
         self.registerTrimEvent()
         return true
     }
@@ -130,6 +131,12 @@ final class ClipboardMonitor: ObservableObject {
         let sourceContext = self.sourceTracker.recordObservedChangeCount(observed)
         Telemetry.clipboard.debug(
             "Observed changeCount=\(observed, privacy: .public) src=\(sourceContext.debugLabel, privacy: .public).")
+        Telemetry.clipboard.notice(
+            """
+            Clipboard observed src=\(sourceContext.debugLabel, privacy: .public) \
+            terminal=\(sourceContext.isTerminal, privacy: .public) \
+            changeCount=\(observed, privacy: .public).
+            """)
         // Grace delay lets promised pasteboard data settle before we read/transform.
         DispatchQueue.main.asyncAfter(deadline: .now() + self.graceDelay) { [weak self] in
             guard let self else { return }
@@ -256,11 +263,28 @@ final class ClipboardMonitor: ObservableObject {
             "Trim skipped reason=\(reason, privacy: .public) force=\(force, privacy: .public)")
     }
 
-    private func logTrimApplied(original: String, trimmed: String, force: Bool, transformed: Bool) {
+    private func logTrimApplied(
+        original: String,
+        trimmed: String,
+        force: Bool,
+        transformed: Bool,
+        sourceContext: ClipboardSourceContext?)
+    {
         let originalCount = original.count
         let trimmedCount = trimmed.count
-        Telemetry.clipboard.debug(
-            "Trim applied transformed=\(transformed, privacy: .public) force=\(force, privacy: .public) lengths=\(originalCount, privacy: .public)->\(trimmedCount, privacy: .public)")
+        if let sourceContext {
+            Telemetry.clipboard.notice(
+                """
+                Trim applied src=\(sourceContext.debugLabel, privacy: .public) \
+                terminal=\(sourceContext.isTerminal, privacy: .public) \
+                transformed=\(transformed, privacy: .public) \
+                force=\(force, privacy: .public) \
+                lengths=\(originalCount, privacy: .public)->\(trimmedCount, privacy: .public).
+                """)
+        } else {
+            Telemetry.clipboard.notice(
+                "Trim applied src=unknown transformed=\(transformed, privacy: .public) force=\(force, privacy: .public) lengths=\(originalCount, privacy: .public)->\(trimmedCount, privacy: .public)")
+        }
     }
 }
 

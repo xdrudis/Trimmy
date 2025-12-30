@@ -11,28 +11,13 @@ struct ClipboardSourceContext: Sendable {
     let processIdentifier: pid_t?
 
     var isTerminal: Bool {
-        Self.isTerminalApp(bundleIdentifier: self.bundleIdentifier, appName: self.appName)
+        TerminalAppIdentifiers.isTerminal(bundleIdentifier: self.bundleIdentifier, appName: self.appName)
     }
 
     var debugLabel: String {
         let name = self.appName ?? "nil"
         let bundle = self.bundleIdentifier ?? "nil"
         return "\(self.capture.rawValue) \(name) (\(bundle))"
-    }
-
-    private static func isTerminalApp(bundleIdentifier: String?, appName: String?) -> Bool {
-        guard let bundleIdentifier else {
-            let name = (appName ?? "").lowercased()
-            return name.contains("terminal") || name.contains("iterm") || name.contains("warp") || name
-                .contains("kitty")
-        }
-
-        let lower = bundleIdentifier.lowercased()
-        if lower == "com.apple.terminal" { return true }
-        if lower.hasPrefix("com.googlecode.iterm2") { return true }
-        if lower.hasPrefix("net.kovidgoyal.kitty") { return true }
-        if lower.hasPrefix("dev.warp.warp") { return true }
-        return false
     }
 }
 
