@@ -339,6 +339,27 @@ extension ClipboardMonitor {
         return true
     }
 
+    @discardableResult
+    func pasteReformattedMarkdown() -> Bool {
+        guard self.settings.showMarkdownReformatOption else {
+            self.lastSummary = "Markdown reformat disabled."
+            return false
+        }
+        guard self.accessibilityPermission.isTrusted else {
+            self.lastSummary = Self.accessibilityPermissionMessage
+            return false
+        }
+        guard let reformat = self.currentMarkdownReformat() else {
+            self.lastSummary = "No markdown to reformat."
+            return false
+        }
+        self.lastOriginalText = reformat.original
+        self.lastTrimmedText = nil
+        self.updateSummary(with: reformat.reformatted)
+        self.performPaste(with: reformat.reformatted)
+        return true
+    }
+
     func struckOriginalPreview(limit _: Int? = nil) -> AttributedString {
         guard let original = self.lastOriginalText else {
             return AttributedString(self.lastSummary.isEmpty ? "No actions yet" : self.lastSummary)
@@ -364,6 +385,10 @@ extension ClipboardMonitor {
     func originalPreviewSource() -> String? {
         self.lastOriginalText
     }
+
+    func markdownReformatPreviewSource() -> String? {
+        self.currentMarkdownReformat()?.reformatted
+    }
 }
 
 // MARK: - Helpers
@@ -373,6 +398,11 @@ extension ClipboardMonitor {
         let original: String
         let trimmed: String
         let wasTransformed: Bool
+    }
+
+    fileprivate struct MarkdownReformat {
+        let original: String
+        let reformatted: String
     }
 
     private func cachedOrCurrentVariantsForPaste(force: Bool) -> ClipboardVariants? {
@@ -467,6 +497,13 @@ extension ClipboardMonitor {
             original: text,
             trimmed: currentText,
             wasTransformed: wasTransformed)
+    }
+
+    private func currentMarkdownReformat() -> MarkdownReformat? {
+        guard let text = self.clipboardText() ?? self.lastOriginalText else { return nil }
+        guard MarkdownReformatter.isLikelyMarkdown(text) else { return nil }
+        let reformatted = MarkdownReformatter.reformat(text)
+        return MarkdownReformat(original: text, reformatted: reformatted)
     }
 
     private func cache(original: String?, trimmed: String?) {

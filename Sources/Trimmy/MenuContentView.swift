@@ -63,6 +63,10 @@ struct MenuContentView: View {
         _ = self.monitor.pasteOriginal()
     }
 
+    private func handlePasteReformattedMarkdown() {
+        _ = self.monitor.pasteReformattedMarkdown()
+    }
+
     private var targetAppLabel: String {
         ClipboardMonitor.ellipsize(self.monitor.frontmostAppName, limit: 30)
     }
@@ -147,6 +151,22 @@ extension MenuContentView {
                 .truncationMode(.middle)
                 .frame(maxWidth: 260, alignment: .leading)
 
+            if self.settings.showMarkdownReformatOption,
+               let markdownPreviewSource = self.markdownPreviewSource
+            {
+                let markdownStatsSuffix = self.statsSuffix(for: markdownPreviewSource, showTruncations: true)
+                Button("Paste Reformatted Markdown to \(self.targetAppLabel)\(markdownStatsSuffix)") {
+                    self.handlePasteReformattedMarkdown()
+                }
+                Text(self.markdownPreviewLine(for: markdownPreviewSource))
+                    .font(.caption2).monospaced()
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: 260, alignment: .leading)
+            }
+
             Button("Paste Original to \(self.targetAppLabel)\(self.originalStatsSuffix)") {
                 self.handlePasteOriginal()
             }
@@ -203,6 +223,14 @@ extension MenuContentView {
             count: text.count,
             limit: MenuPreview.limit,
             showTruncations: showTruncations)
+    }
+
+    private var markdownPreviewSource: String? {
+        self.monitor.markdownReformatPreviewSource()
+    }
+
+    private func markdownPreviewLine(for text: String) -> String {
+        ClipboardMonitor.ellipsize(PreviewMetrics.displayString(text), limit: MenuPreview.limit)
     }
 }
 

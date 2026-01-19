@@ -32,6 +32,11 @@ struct GeneralSettingsPane: View {
                 subtitle: "Strip prompt-style box gutters (any count, leading/trailing) before trimming.",
                 binding: self.$settings.removeBoxDrawing)
 
+            PreferenceToggleRow(
+                title: "Show Markdown reformat option",
+                subtitle: "Expose a menu-only paste action that reflows markdown bullets and headings.",
+                binding: self.$settings.showMarkdownReformatOption)
+
             Divider()
                 .padding(.vertical, 4)
 
