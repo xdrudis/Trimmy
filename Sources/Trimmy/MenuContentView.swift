@@ -246,7 +246,7 @@ extension View {
 }
 
 private enum MenuPreview {
-    static let limit = 100
+    static let limit = 30
 }
 
 extension KeyboardShortcuts.Shortcut {
