@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.1 — Unreleased
+## 0.8.0 — Unreleased
 - Added a menu-only “Paste Reformatted Markdown” action to join wrapped markdown paragraphs and bullet lists while preserving blank lines and fenced code blocks.
 - Path quoting now only wraps standalone paths (not commands or sentences) when they contain spaces (#17, thanks @n0an).
 
