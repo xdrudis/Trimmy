@@ -2,8 +2,11 @@
 ![Trimmy logo](trimmy-logo.png)
 > "Paste once, run once." — Trimmy flattens those multi-line shell snippets you copy so they actually paste and run.
 
+**Install via Homebrew:** `brew install --cask steipete/tap/trimmy`
+
 ![Trimmy menu showing trimmed/original actions](trimmy.png)
 ![Terminal example before/after trimming](term-example.png)
+![Markdown reformatting example](markdown-trimmed.jpg)
 
 ## What it does
 - Lives in your macOS menu bar (macOS 15+). No Dock icon.
