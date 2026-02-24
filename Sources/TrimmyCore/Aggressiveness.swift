@@ -2,6 +2,7 @@ import Foundation
 
 public enum Aggressiveness: String, CaseIterable, Identifiable, Codable, Sendable {
     case low, normal, high
+    case claudeCode = "claudecode"
     public var id: String { self.rawValue }
 
     public var scoreThreshold: Int {
@@ -9,6 +10,7 @@ public enum Aggressiveness: String, CaseIterable, Identifiable, Codable, Sendabl
         case .low: 3
         case .normal: 2
         case .high: 1
+        case .claudeCode: 1
         }
     }
 
@@ -17,6 +19,7 @@ public enum Aggressiveness: String, CaseIterable, Identifiable, Codable, Sendabl
         case .low: "Low (safer)"
         case .normal: "Normal"
         case .high: "High (more eager)"
+        case .claudeCode: "Claude Code"
         }
     }
 
@@ -25,6 +28,7 @@ public enum Aggressiveness: String, CaseIterable, Identifiable, Codable, Sendabl
         case .low: "Low"
         case .normal: "Normal"
         case .high: "High"
+        case .claudeCode: "Claude Code"
         }
     }
 
@@ -37,6 +41,8 @@ public enum Aggressiveness: String, CaseIterable, Identifiable, Codable, Sendabl
             "Good default: flattens typical blog/README commands with pipes or continuations."
         case .high:
             "Most eager: will flatten almost any short multi-line text that resembles a command."
+        case .claudeCode:
+            "Unwraps Claude Code output: removes 2-space indent and joins lines without punctuation."
         }
     }
 }

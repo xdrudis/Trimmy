@@ -131,6 +131,11 @@ public struct TextCleaner: Sendable {
             wasTransformed = true
         }
 
+        if let claudeCodeTransformed = self.transformClaudeCode(currentText, config: config) {
+            currentText = claudeCodeTransformed
+            wasTransformed = true
+        }
+
         return TrimResult(original: text, trimmed: currentText, wasTransformed: wasTransformed)
     }
 
@@ -211,6 +216,64 @@ public struct TextCleaner: Sendable {
 
         let flattened = self.flatten(text, preserveBlankLines: config.preserveBlankLines)
         return flattened == text ? nil : flattened
+    }
+
+    public func transformClaudeCode(_ text: String, config: TrimConfig) -> String? {
+        guard config.aggressiveness == .claudeCode else { return nil }
+        
+        let lines = text.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
+        guard lines.count >= 2 else { return nil }
+        
+        // Check if all lines are either empty OR start with exactly two spaces
+        let allLinesAreEmptyOrStartWithTwoSpaces = lines.allSatisfy { line in
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            return trimmed.isEmpty || line.hasPrefix("  ")
+        }
+        
+        guard allLinesAreEmptyOrStartWithTwoSpaces else { return nil }
+        
+        var result: [String] = []
+        var i = 0
+        
+        while i < lines.count {
+            let currentLine = lines[i]
+            let trimmedCurrent = currentLine.trimmingCharacters(in: .whitespaces)
+            
+            // Handle empty lines
+            if trimmedCurrent.isEmpty {
+                result.append("")
+                i += 1
+                continue
+            }
+            
+            // Remove two leading spaces
+            var processedLine = String(currentLine.dropFirst(2))
+            
+            // Check if we should combine with next line
+            if processedLine.count >= config.expectedLineLength &&
+               !processedLine.hasSuffix(".") &&
+               !processedLine.hasSuffix(":") &&
+               i + 1 < lines.count {
+                
+                let nextLine = lines[i + 1]
+                let trimmedNext = nextLine.trimmingCharacters(in: .whitespaces)
+                
+                if !trimmedNext.isEmpty {
+                    let nextProcessed = String(nextLine.dropFirst(2))
+                    processedLine += " " + nextProcessed
+                    i += 2  // Skip next line since we combined it
+                } else {
+                    result.append(processedLine)
+                    i += 1
+                }
+            } else {
+                result.append(processedLine)
+                i += 1
+            }
+        }
+        
+        let transformed = result.joined(separator: "\n")
+        return transformed == text ? nil : transformed
     }
 
     private func isLikelyCommandLine(_ lineSubstr: Substring) -> Bool {

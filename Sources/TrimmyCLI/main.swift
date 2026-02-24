@@ -156,7 +156,8 @@ func cliTrim(_ text: String, settings: CLISettings, force: Bool) -> CLITrimResul
     let cfg = TrimConfig(
         aggressiveness: settings.aggressiveness,
         preserveBlankLines: settings.preserveBlankLines,
-        removeBoxDrawing: settings.removeBoxDrawing)
+        removeBoxDrawing: settings.removeBoxDrawing,
+        expectedLineLength: 80)
     let result = cleaner.transform(text, config: cfg, aggressivenessOverride: override)
     return CLITrimResult(original: result.original, trimmed: result.trimmed, transformed: result.wasTransformed)
 }

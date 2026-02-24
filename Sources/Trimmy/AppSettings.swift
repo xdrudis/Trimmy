@@ -4,7 +4,7 @@ import TrimmyCore
 
 @MainActor
 public final class AppSettings: ObservableObject {
-    @AppStorage("generalAggressiveness") public var generalAggressiveness: GeneralAggressiveness = .low
+    @AppStorage("generalAggressiveness") public var generalAggressiveness: GeneralAggressiveness = .claudeCode
     @AppStorage("terminalAggressiveness") public var terminalAggressiveness: Aggressiveness = .normal
     @AppStorage("preserveBlankLines") public var preserveBlankLines: Bool = false
     @AppStorage("autoTrimEnabled") public var autoTrimEnabled: Bool = true
@@ -27,6 +27,8 @@ public final class AppSettings: ObservableObject {
     @AppStorage("autoTrimHotkeyEnabled") var autoTrimHotkeyEnabled: Bool = false {
         didSet { self.autoTrimHotkeyEnabledChanged?(self.autoTrimHotkeyEnabled) }
     }
+
+    @AppStorage("expectedLineLength") public var expectedLineLength: Int = 80
 
     var pasteTrimmedHotkeyEnabledChanged: ((Bool) -> Void)?
     var pasteOriginalHotkeyEnabledChanged: ((Bool) -> Void)?

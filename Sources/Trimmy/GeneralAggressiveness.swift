@@ -6,6 +6,7 @@ public enum GeneralAggressiveness: String, CaseIterable, Identifiable, Codable, 
     case low
     case normal
     case high
+    case claudeCode
 
     public var id: String { self.rawValue }
 
@@ -19,6 +20,8 @@ public enum GeneralAggressiveness: String, CaseIterable, Identifiable, Codable, 
             Aggressiveness.normal.title
         case .high:
             Aggressiveness.high.title
+        case .claudeCode:
+            Aggressiveness.claudeCode.title
         }
     }
 
@@ -28,19 +31,22 @@ public enum GeneralAggressiveness: String, CaseIterable, Identifiable, Codable, 
         case .low: Aggressiveness.low.titleShort
         case .normal: Aggressiveness.normal.titleShort
         case .high: Aggressiveness.high.titleShort
+        case .claudeCode: Aggressiveness.claudeCode.titleShort
         }
     }
 
     public var blurb: String {
         switch self {
         case .none:
-            "Skip auto-flattening for non-terminal apps. Manual “Paste Trimmed” still uses High."
+            "Skip auto-flattening for non-terminal apps. Manual "Paste Trimmed" still uses High."
         case .low:
             Aggressiveness.low.blurb
         case .normal:
             Aggressiveness.normal.blurb
         case .high:
             Aggressiveness.high.blurb
+        case .claudeCode:
+            Aggressiveness.claudeCode.blurb
         }
     }
 
@@ -54,6 +60,8 @@ public enum GeneralAggressiveness: String, CaseIterable, Identifiable, Codable, 
             .normal
         case .high:
             .high
+        case .claudeCode:
+            .claudeCode
         }
     }
 }

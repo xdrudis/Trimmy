@@ -52,6 +52,7 @@ struct CommandDetector {
         TrimConfig(
             aggressiveness: aggressiveness,
             preserveBlankLines: self.settings.preserveBlankLines,
-            removeBoxDrawing: self.settings.removeBoxDrawing)
+            removeBoxDrawing: self.settings.removeBoxDrawing,
+            expectedLineLength: self.settings.expectedLineLength)
     }
 }
